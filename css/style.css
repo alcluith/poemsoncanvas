@@ -1,0 +1,85 @@
+
+body {
+    text-align: center;
+    font-family: 'EB Garamond', serif;
+    background-color: lightblue;
+    font-size: large;
+    font-weight: bold;
+/*background-attachment:fixed;
+background-position:center; */
+
+}
+
+
+#textpage{
+  background-color: white;
+  text-align: justify-all;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 30px;
+  margin-bottom:50px;
+  width: 60%;
+  padding: 20px;
+  font-size: larger;
+  word-wrap: normal;
+  
+}
+#introtextpage{
+  background-color: white;
+  text-align: justify-all;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 30px;
+  margin-bottom:50px;
+  width: 60%;
+  padding: 20px;
+  font-size: large;
+  word-wrap: normal;
+  
+}
+
+/*Redacted style CSS from https://codepen.io/adamruf/pen/GZwdrY by Adam Ruf  */
+
+span {
+  list-style-type: none;
+  position: relative;
+  margin: 0px;
+  padding: 0.2em 0.0em 0.0em 0.2em;
+  background: white;
+  font-family: 'EB Garamond', serif;
+  font-size: large;
+  line-height: 1.8;
+}
+
+ span.redacted {
+  position: relative;
+  white-space: pre;
+  &:after {
+    background: rgba(0, 0, 0, 0.5);;
+    /*border-radius: 0.1em;*/
+    box-shadow: 0 0 3px rgba(0,0,0,0.75);
+    content: " ";
+    width: 50%;
+    height: 1.8em;
+    left: 0;
+    position: absolute;
+    /*transform: skewY(-5deg) rotate(5deg);*/
+   } 
+}
+
+span.redacted::after {
+  position: relative;
+  white-space: pre;
+    background: black;
+    /*border-radius: 0.1em;*/
+    box-shadow: 0 0 3px rgba(0,0,0,0.75);
+    content: " ";
+    width: 100%;
+    height: 1.8em;
+    left: 0;
+    position: absolute;
+    /*transform: skewY(-5deg) rotate(5deg);*/
+   
+}
+
+
