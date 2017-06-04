@@ -12,6 +12,7 @@
   <script>
   // index in word array of current page to display
   var current_word_index = 0;
+  var current_page = 0;
   var text = "";
   // array containing all the words in the current text
   var allWords = new Array();
@@ -32,8 +33,9 @@
       console.log('height' + canvas.height);
       // array of word tiles to put on the canvas
       // var tiles = new Array();
-      context.fillStyle = 'white';
+      context.fillStyle = 'blue';
       context.fillRect(0, 0, maxWidth, canvas.height);
+
       //is the user blacking out more than one word
       if (canvas.width < 480) {
         context.font = '18px Georgia';
@@ -51,7 +53,7 @@
         maxHeight = canvas.height * 75 / 100;
         console.log("maxHeight: " + maxHeight + "maxWidth: " + maxWidth);
       }
-
+       
         
         
        
@@ -68,7 +70,7 @@
 
   }
 
-  function displayVals(this_page) {
+  function displayVals() {
     var xInitial = 0;
     var yInitial = 0;
     var tiles = new Array();
@@ -78,7 +80,9 @@
     var dragging = false;
     var canvas = document.getElementById('mycanvas');
     var context = canvas.getContext('2d');
-
+     // context.fillStyle = 'blue';
+     //  context.fillRect(0,0,canvas.width,canvas.height );
+    
     // add event handlers to canvas
     canvas.addEventListener('mousedown', wordSelectStart.bind(null,tiles), false);
     canvas.addEventListener("touchstart", wordSelectStart.bind(null,tiles), false);
@@ -108,7 +112,7 @@
     // The URL for the request
     url: "display_page.php",
     data:{
-      page_num: this_page,
+      // page_num: this_page,
       current_text: text_name
     },
     // Whether this is a POST or GET request
@@ -122,19 +126,22 @@
     .done(function( data) {
       console.log("word INDEX: in done " + current_word_index);
       var current_text = document.getElementById("dropdown").value;
-      console.log("text chosen: " + current_text);
+      // console.log("text chosen: " + current_text);
       alltext = data;
-      console.log("first line of page is:" + alltext.substr(current_word_index,current_word_index + 25));
+      // console.log("first line of page is:" + alltext.substr(current_word_index,current_word_index + 25));
       //////////////////////////////////////////////////
       //ADD CODE TO ONLY TRY AND SHOW ONE PAGE AT A TIME
       /////////////////////////////////////////////
       getWords(alltext, allWords);
       // text = getPage(alltext, ;
       // setText(data);
-      console.log('x  val in done: ' + xInitial);
-       console.log('y  val in done: ' + yInitial);
+      // console.log('x  val in done: ' + xInitial);
+       // console.log('y  val in done: ' + yInitial);
        wrapTiles(tiles,context, xInitial, yInitial, maxWidth, maxHeight,lineHeight);
        placeTiles(tiles,context);
+        console.log("DONE page length: " + page_length );
+
+
   })
 
   // // Code to run if the request fails; the raw request and
@@ -172,15 +179,25 @@
     $( "button" ).click(function(){
         console.log("button clicked: " + this.id);
         if ((this.id == 'prevbutton')) {
-          if (current_word_index > 0){
-            current_word_index = current_word_index - 1;
-            console.log("prev button clicked, page now: " + current_word_index);
+          if (current_word_index > page_length){
+            current_word_index = current_word_index - (2*page_length);
+            if (current_word_index < 0) {
+                current_word_index = 0;
+            }
+            if (current_page > 0) {
+               current_page -= 1;
+            }  
+            console.log("PREV button clicked, word index now: " + current_word_index);
+            console.log("PREV button clicked, page now: " + current_page);
             displayVals(current_word_index);
             }
           }
         else {
         current_word_index = current_word_index +1;
-        console.log("next button clicked, word index now: " + current_word_index);
+        current_page += 1;
+        console.log("NEXT button clicked, word index now: " + current_word_index);
+        console.log("NEXT button clicked, page now: " + current_page);
+        
         displayVals(current_word_index);
     }
    });
@@ -201,8 +218,6 @@
     <!-- </ul>
   </div> -->
 <!-- </nav>  -->
-
-<canvas id="mycanvas"></canvas>
 
 Select text to work with: 
   <select id="dropdown">
@@ -233,6 +248,9 @@ Select text to work with:
   <!-- display page -->
 
   <div id="textpage">
+
+<canvas id="mycanvas"></canvas>
+
   </div>
 
  </body>

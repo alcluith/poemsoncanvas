@@ -3,7 +3,7 @@
 function getWords(text){       
   var allWordsNoBreaks =  text.replace(/\r?\n|\r/g, " ");
   allWords = allWordsNoBreaks.split(' ');
-  console.log( allWords);
+  // console.log( allWords);
   // console.log('first word:' + allWords[1]);
   // var numwords = allWords.length;
   // console.log('num words:' + numwords);
@@ -57,7 +57,7 @@ function makeTile(context, newWord, leftX, topY, lineHeight) {
 //place tile on canvas
 function placeTiles(tiles,context) {
   for (var i = 0; i < tiles.length; i++) {
-    console.log('placing tile ' + i + ' ' + tiles[i].word);
+    // console.log('placing tile ' + i + ' ' + tiles[i].word);
     context.fillStyle = '#00c';
     context.textBaseline = "top";
     context.fillStyle = '#000';
@@ -72,9 +72,9 @@ function placeTiles(tiles,context) {
 function wrapTiles(tiles,context,  x, y, maxWidth,maxHeight, lineHeight) {
   // var words = text.split(' ');
   // position of current word in array of tiles
-  console.log("in WRAPTILES,  current_word_index is " + current_word_index);
+  // console.log("in WRAPTILES,  current_word_index is " + current_word_index);
   var tileIndex = 0;
-  // x and y pos of current tile top left corner
+  // x and y pos of current tile top leftf corner
   var xPos = x;
   var yPos = y;
   for (var n = current_word_index; n < allWords.length; n++) {
@@ -94,8 +94,14 @@ function wrapTiles(tiles,context,  x, y, maxWidth,maxHeight, lineHeight) {
         // console.log("INCR ypos now equals: " + yPos);
         if (yPos > maxHeight){
           current_word_index = n;
+           if (page_length == 0 && current_word_index > 0) {
+            page_length = current_word_index;
+            num_pages = Math.ceil(allWords.length / page_length);
+            console.log("WRAPPED page length: " + page_length + ' num pages: ' + num_pages);
+           }
           // console.log("TOO BIG: ypos now equals: " + yPos);
-            console.log("word INDEX: " + current_word_index);
+            console.log("WRAPPED word INDEX: " + current_word_index);
+            console.log("WRAPPED page length: " + page_length );
           break;
         }
         xPos = x;
@@ -231,7 +237,7 @@ function wordSelectEnd(tiles, context) {
     }
 
   }
-  adjustBlackout(tiles, context);
+  // adjustBlackout(tiles, context);
 }
 
 
