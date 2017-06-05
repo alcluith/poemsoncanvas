@@ -131,7 +131,7 @@ function adjustBlackout(tiles, context) {
       console.log("adjusting invisible tile: " + n);
       if (tiles[n + 1].visible) {
         // retract the blackout tile to teh left slightly
-        context.fillStyle = 'white';
+        context.fillStyle = 'blue';
         context.fillRect(tiles[n].left, tiles[n].top,
           (tiles[n].right - tiles[n].left + 0.5),
           tiles[n].bottom - tiles[n].top);
@@ -186,12 +186,14 @@ function toggleTile(tiles,context, n) {
 
 function findTile(tiles,x, y) {
   var i = 0;
+  var adjY = y - 30;
+  var adjX = x - 200;
   var found = false;
   while (i < tiles.length && !found) {
-    if (tiles[i].left <= x &&
-      x <= tiles[i].right &&
-      tiles[i].top <= y &&
-      y <= tiles[i].bottom) {
+    if (tiles[i].left <= adjX &&
+      adjX <= tiles[i].right &&
+      tiles[i].top <= adjY &&
+      adjY <= tiles[i].bottom) {
       console.log("tile found: " + tiles[i].word + i);
       found = true;
     } else {
@@ -212,7 +214,9 @@ function findTile(tiles,x, y) {
 
 function wordSelectStart( tiles,event) {
   var tileNum = findTile(tiles,event.pageX, event.pageY);
-  console.log("in wordSelectStart, word: " + tileNum );
+  console.log("in wordSelectSTART, tilenum: " + tileNum + ' ' + 'eventx:'  + event.pageX + ' ' + 'eventy:'  + event.pageY );
+  
+  console.log("in wordSelectSTART, word: " + tiles[tileNum].word + ' ' + 'word top:'  + tiles[tileNum].top + ' ' + 'tile bottom:'  + tiles[tileNum].bottom );
   dragstart = tileNum;
   dragging = true;
 }
@@ -237,7 +241,7 @@ function wordSelectEnd(tiles, context) {
     }
 
   }
-  // adjustBlackout(tiles, context);
+ // adjustBlackout(tiles, context);
 }
 
 

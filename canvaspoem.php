@@ -5,7 +5,7 @@
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=EB+Garamond" >
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="./css/style.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="js/canvasops2.js"></script> 
 <!--   <script src="js/html2canvas.js"></script> -->
@@ -27,30 +27,42 @@
     
     var canvas = document.getElementById('mycanvas');
     var context = canvas.getContext('2d');
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      console.log('width' + canvas.width);
-      console.log('height' + canvas.height);
+      // canvas.width = window.innerWidth;
+      // canvas.height = window.innerHeight;
+      // console.log('width' + canvas.width);
+      // console.log('height' + canvas.height);
       // array of word tiles to put on the canvas
       // var tiles = new Array();
       context.fillStyle = 'blue';
       context.fillRect(0, 0, maxWidth, canvas.height);
 
       //is the user blacking out more than one word
-      if (canvas.width < 480) {
+      if (window.innerWidth < 480) {
         context.font = '18px Georgia';
+
         maxWidth = canvas.width * 95 / 100;
         maxHeight = canvas.height * 95 / 100;
-        console.log("maxHeight: " + maxHeight + "maxWidth: " + maxWidth);
+        console.log("maxHeight small: " + maxHeight + "maxWidth: " + maxWidth);
       } else if (canvas.width < 768) {
-        context.font = '14px Georgia';
-        maxWidth = canvas.width * 65 / 100;
-        maxHeight = canvas.height * 75 / 100;
-        console.log("maxHeight: " + maxHeight + "maxWidth: " + maxWidth);
-      } else {
+     
+        
+        canvas.width = Math.floor(window.innerWidth* 65 / 100) ;
+        canvas.height = Math.floor(window.innerHeight* 75 / 100);
+        console.log('width med' + canvas.width);
+        console.log('height med' + canvas.height);
+        maxWidth = Math.floor(canvas.width * 95 / 100);
+        maxHeight = Math.floor(canvas.height * 95 / 100);
+        console.log("maxHeight med: " + maxHeight + "maxWidth: " + maxWidth);
         context.font = '18px Georgia';
-        maxWidth = canvas.width * 75 / 100;
-        maxHeight = canvas.height * 75 / 100;
+
+      } else {
+        context.font = '14px Georgia';
+        canvas.width = window.innerWidth* 65 / 100 ;
+        canvas.height = window.innerHeight* 75 / 100;
+        console.log('width big' + canvas.width);
+        console.log('height big' + canvas.height);
+        maxWidth = canvas.width * 95 / 100;
+        maxHeight = canvas.height * 95 / 100;
         console.log("maxHeight: " + maxHeight + "maxWidth: " + maxWidth);
       }
        
@@ -75,13 +87,13 @@
     var yInitial = 0;
     var tiles = new Array();
     var lineIndex = new Array();
-    var lineHeight = 25;
+    var lineHeight = 30;
     var dragstart = 0;
     var dragging = false;
     var canvas = document.getElementById('mycanvas');
     var context = canvas.getContext('2d');
-     // context.fillStyle = 'blue';
-     //  context.fillRect(0,0,canvas.width,canvas.height );
+     context.fillStyle = 'white';
+      context.fillRect(0,0,canvas.width,canvas.height );
     
     // add event handlers to canvas
     canvas.addEventListener('mousedown', wordSelectStart.bind(null,tiles), false);
@@ -94,9 +106,9 @@
       });
     canvas.addEventListener("click", mouseClickEvent, false);
 
-    var xInitial = (canvas.width - maxWidth) / 2;
+    var xInitial = Math.floor((canvas.width - maxWidth) / 2);
     console.log('x initial val: ' + xInitial);
-    var yInitial = 60;
+    var yInitial = 0;
     console.log('y initial val: ' + yInitial);
     var text = '';
     var text_name = $( "#dropdown" ).val();
@@ -104,8 +116,8 @@
     console.log("current_word_index is " + current_word_index);
     context.fillStyle = '#333';
     var spacewidth = (context.measureText(" ")).width;
-    context.fillStyle = 'white';
-    context.fillRect(0, 0, maxWidth, canvas.height);
+    // context.fillStyle = 'white';
+    // context.fillRect(0, 0, maxWidth, canvas.height);
 
 // do the ajax get call to call display_page now
     $.ajax({
@@ -140,6 +152,9 @@
        wrapTiles(tiles,context, xInitial, yInitial, maxWidth, maxHeight,lineHeight);
        placeTiles(tiles,context);
         console.log("DONE page length: " + page_length );
+      //   context.fillStyle = 'blue';
+      // context.fillRect(0, 0, maxWidth, canvas.height);
+
 
 
   })
@@ -189,17 +204,25 @@
             }  
             console.log("PREV button clicked, word index now: " + current_word_index);
             console.log("PREV button clicked, page now: " + current_page);
-            displayVals(current_word_index);
+            displayVals();
             }
           }
-        else {
-        current_word_index = current_word_index +1;
-        current_page += 1;
-        console.log("NEXT button clicked, word index now: " + current_word_index);
-        console.log("NEXT button clicked, page now: " + current_page);
-        
-        displayVals(current_word_index);
+        else if(this.id == 'randbutton'){
+            
+            current_word_index = Math.floor(Math.random() * allWords.length);
+            current_page = Math.floor(current_word_index / page_length);
+            console.log("RAND button clicked, word index now: " + current_word_index);
+            console.log("RAND button clicked, page now: " + current_page);
+            displayVals();
+        }
+        else { //next button
+          current_word_index = current_word_index +1;
+          current_page += 1;
+          console.log("NEXT button clicked, word index now: " + current_word_index);
+          console.log("NEXT button clicked, page now: " + current_page);
+          displayVals();
     }
+
    });
   });
 
@@ -219,7 +242,17 @@
   </div> -->
 <!-- </nav>  -->
 
-Select text to work with: 
+
+
+  <!-- display page -->
+<canvas id="mycanvas"></canvas>
+
+  <!-- <div id="textpage">
+
+
+  </div> -->
+  <div id="choosetext">
+  Select text to work with: 
   <select id="dropdown">
     <option value="tides">Time and Tide</option>
     <option value="frank">Frankenstein</option>
@@ -230,7 +263,8 @@ Select text to work with:
     <option value="super">Astounding Stories</option>
     
   </select>
-
+<br/>
+<br/>
 <!-- <button id="randombutton" type="button">
     random page
   </button>
@@ -244,14 +278,11 @@ Select text to work with:
     next page
 </button>
 
+<button id="randbutton" type="button">
+    random page
+</button>
+</div>
 
-  <!-- display page -->
-
-  <div id="textpage">
-
-<canvas id="mycanvas"></canvas>
-
-  </div>
 
  </body>
  
