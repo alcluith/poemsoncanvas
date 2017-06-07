@@ -16,17 +16,30 @@
   var text = "";
   // array containing all the words in the current text
   var allWords = new Array();
+  var tiles = new Array();
   var page_length = 0;
   var num_pages = 0;
   var maxWidth = 0;
   var maxHeight = 0;
+  var leftOffset = 0;
+
   // var canvas = document.getElementById('mycanvas');
   //   var context = canvas.getContext('2d');
 
+
+// function printTilesToLog(tiles){
+//    console.log("printing tiles");
+//   for (var i = 0; i < 3; i++){
+   
+//     console.log("tile " + i + ' ' + tiles[i].word);
+//   }
+// }
   function initalize(){
     
     var canvas = document.getElementById('mycanvas');
     var context = canvas.getContext('2d');
+    canvas.width = canvas.width;
+    // context = None;
       // canvas.width = window.innerWidth;
       // canvas.height = window.innerHeight;
       // console.log('width' + canvas.width);
@@ -42,78 +55,176 @@
 
         maxWidth = canvas.width * 95 / 100;
         maxHeight = canvas.height * 95 / 100;
-        console.log("maxHeight small: " + maxHeight + "maxWidth: " + maxWidth);
+        // console.log("maxHeight small: " + maxHeight + "maxWidth: " + maxWidth);
       } else if (canvas.width < 768) {
      
         
         canvas.width = Math.floor(window.innerWidth* 65 / 100) ;
         canvas.height = Math.floor(window.innerHeight* 75 / 100);
-        console.log('width med' + canvas.width);
-        console.log('height med' + canvas.height);
+        // console.log('width med' + canvas.width);
+        // console.log('height med' + canvas.height);
         maxWidth = Math.floor(canvas.width * 95 / 100);
         maxHeight = Math.floor(canvas.height * 95 / 100);
-        console.log("maxHeight med: " + maxHeight + "maxWidth: " + maxWidth);
+        leftOffset = (window.innerWidth - canvas.width)/2;
+        // console.log("LEFT Offset " + leftOffset);
+         document.getElementById('mycanvas').style.marginLeft = leftOffset;
+        // console.log("maxHeight med: " + maxHeight + "maxWidth: " + maxWidth);
         context.font = '18px Georgia';
 
       } else {
         context.font = '14px Georgia';
         canvas.width = window.innerWidth* 65 / 100 ;
         canvas.height = window.innerHeight* 75 / 100;
-        console.log('width big' + canvas.width);
-        console.log('height big' + canvas.height);
+        // console.log('width big' + canvas.width);
+        // console.log('height big' + canvas.height);
         maxWidth = canvas.width * 95 / 100;
         maxHeight = canvas.height * 95 / 100;
-        console.log("maxHeight: " + maxHeight + "maxWidth: " + maxWidth);
+        // console.log("maxHeight: " + maxHeight + "maxWidth: " + maxWidth);
       }
-       
-        
-        
-       
-      // canvas.addEventListener("touchstart", wordSelectStart(tiles), false);
-      // canvas.addEventListener('mouseup', wordSelectEnd, false);
-
-      // canvas.addEventListener('touchend', function(e) {
-      //   // prevent delay and simulated mouse events 
-      //   e.preventDefault();
-      //   wordSelectEnd();
-      // });
-      // 
       
+  }
+
+
+function printTilesToLog(){
+   console.log("printing tiles");
+  for (var i = 0; i < 3; i++){
+    console.log("tile " + i + ' ' + tiles[i].word);
+  }
+}
+
+// toggle tiles between blacked-out and visible
+function toggleTile(context, n) {
+  console.log("toggling tile " + n);
+  if (tiles[n].visible == true) {
+    // blackout tile
+    tiles[n].visible = false;
+    context.fillStyle = '#000';
+    // 0.5 to adjust for weird pixel thing on canvas
+    context.fillRect(tiles[n].left, tiles[n].top,
+      (tiles[n].right - tiles[n].left -1.5),
+      tiles[n].bottom - tiles[n].top);
+                   
+  } else {
+    //reveal tile
+    tiles[n].visible = true;
+    context.fillStyle = '#fff';
+    // 0.5 to adjust for weird pixel thing on canvas
+    context.fillRect(tiles[n].left - 1.5, tiles[n].top,
+      (tiles[n].right - tiles[n].left + 1),
+      tiles[n].bottom - tiles[n].top);
+    context.fillStyle = '#fff';
+    context.fillStyle = '#000';
+    context.fillText(tiles[n].word, tiles[n].left, tiles[n].top);
+  }
+}
+
+
+function findTile(x, y, leftOffset) {
+  var i = 0;
+  var adjY = y - 30;
+  var adjX = x - leftOffset;
+  // console.log("FIND tile left offset = " + leftOffset);
+  var found = false;
+  while (i < tiles.length && !found) {
+    if (tiles[i].left <= adjX &&
+      adjX <= tiles[i].right &&
+      tiles[i].top <= adjY &&
+      adjY <= tiles[i].bottom) {
+      console.log("tile found: " + tiles[i].word + i);
+      found = true;
+    } else {
+      i += 1;
+    }
+  }
+  if (!found) {
+    console.log("tile not found");
+    return -1;
+  } else {
+    return i;
+  }
+}
+
+
+
+///////////////////
+// Event Handlers
+///////////////////
+
+
+function wordSelectStart( leftOffset, event) {
+  var tileNum = findTile(event.pageX, event.pageY, leftOffset);
+  console.log("in MOUSEDOWN, tilenum: " + tileNum + ' ' + 'eventx:'  + event.pageX + ' ' + 'eventy:'  + event.pageY );
+  console.log("in wordSelectSTART, word: " + tiles[tileNum].word + ' ' + 'word left:'  + tiles[tileNum].left + ' ' + 'tile right:'  + tiles[tileNum].right );
+  printTilesToLog();
+  dragstart = tileNum;
+  dragging = true;
+}
+
+// problem with tiles is here
+function wordSelectEnd( context, leftOffset) {
+  console.log("in MOUSEUP, coords: " + event.pageX + " " + event.pageY);
+  // console.log("printing tiles");
+  printTilesToLog();
+  var tileNum = findTile(event.pageX, event.pageY, leftOffset);
+  console.log("in mouseup tile: " + tileNum);
+  console.log("in mouseup DRAGGINg is: " + dragging + " dragstart is:" + dragstart);
+  if (dragging) {
+    // console.log("in mouseup if dragging  ");
+    if (tileNum != -1) {
+      // console.log("in mouseup about to do for loop  ");
+      for (i = dragstart; i <= tileNum; i++) {
+        // console.log("in mouseup about to toggle tile: " + i);
+        toggleTile(context, i);
+      //add another loop to adjust these tiles here
+      // adjustBlackout(tiles, context);
+      }
+
+      dragging = false;
+
+    }
 
   }
+ 
+}
+
+
 
   function displayVals() {
     var xInitial = 0;
     var yInitial = 0;
-    var tiles = new Array();
+    // var tiles = new Array();
     var lineIndex = new Array();
     var lineHeight = 30;
     var dragstart = 0;
     var dragging = false;
+
     var canvas = document.getElementById('mycanvas');
     var context = canvas.getContext('2d');
+    //get rid of any previous stuff on the canvas when moving page (hopefully)
+     context.clearRect(0,0, canvas.width, canvas.height);
+
      context.fillStyle = 'white';
       context.fillRect(0,0,canvas.width,canvas.height );
-    
+    clearTiles();
     // add event handlers to canvas
-    canvas.addEventListener('mousedown', wordSelectStart.bind(null,tiles), false);
-    canvas.addEventListener("touchstart", wordSelectStart.bind(null,tiles), false);
-   canvas.addEventListener('mouseup', wordSelectEnd.bind(null, tiles,context), false);
-    canvas.addEventListener('touchend', function(e) {
+    canvas.addEventListener('mousedown', wordSelectStart.bind(null, leftOffset), false);
+    // canvas.addEventListener("touchstart", wordSelectStart.bind(null,tiles,leftOffset), false );
+   canvas.addEventListener('mouseup', wordSelectEnd.bind(null, context, leftOffset), false);
+    // canvas.addEventListener('touchend', function(e) {
         // prevent delay and simulated mouse events 
-        e.preventDefault();
-        wordSelectEnd(tiles, context);
-      });
-    canvas.addEventListener("click", mouseClickEvent, false);
+      //   e.preventDefault();
+      //   wordSelectEnd(tiles, context,leftOffset);
+      // });
+    // canvas.addEventListener("click", mouseClickEvent, false);
 
     var xInitial = Math.floor((canvas.width - maxWidth) / 2);
-    console.log('x initial val: ' + xInitial);
+    // console.log('x initial val: ' + xInitial);
     var yInitial = 0;
-    console.log('y initial val: ' + yInitial);
+    // console.log('y initial val: ' + yInitial);
     var text = '';
     var text_name = $( "#dropdown" ).val();
-    console.log(text_name);
-    console.log("current_word_index is " + current_word_index);
+    // console.log(text_name);
+    // console.log("current_word_index is " + current_word_index);
     context.fillStyle = '#333';
     var spacewidth = (context.measureText(" ")).width;
     // context.fillStyle = 'white';
@@ -144,14 +255,17 @@
       //////////////////////////////////////////////////
       //ADD CODE TO ONLY TRY AND SHOW ONE PAGE AT A TIME
       /////////////////////////////////////////////
-      getWords(alltext, allWords);
+      getWords(alltext);
       // text = getPage(alltext, ;
       // setText(data);
       // console.log('x  val in done: ' + xInitial);
        // console.log('y  val in done: ' + yInitial);
-       wrapTiles(tiles,context, xInitial, yInitial, maxWidth, maxHeight,lineHeight);
-       placeTiles(tiles,context);
-        console.log("DONE page length: " + page_length );
+       wrapTiles(context, xInitial, yInitial, maxWidth, maxHeight,lineHeight);
+       placeTiles(context);
+       console.log("printing TILES n DONE");
+       printTilesToLog();
+        // console.log("DONE page length: " + page_length );
+        console.log("DONE PAGE LOADED" );
       //   context.fillStyle = 'blue';
       // context.fillRect(0, 0, maxWidth, canvas.height);
 
@@ -202,8 +316,9 @@
             if (current_page > 0) {
                current_page -= 1;
             }  
-            console.log("PREV button clicked, word index now: " + current_word_index);
-            console.log("PREV button clicked, page now: " + current_page);
+            // console.log("PREV button clicked, word index now: " + current_word_index);
+            // console.log("PREV button clicked, page now: " + current_page);
+             initalize();
             displayVals();
             }
           }
@@ -211,15 +326,18 @@
             
             current_word_index = Math.floor(Math.random() * allWords.length);
             current_page = Math.floor(current_word_index / page_length);
-            console.log("RAND button clicked, word index now: " + current_word_index);
-            console.log("RAND button clicked, page now: " + current_page);
+            // console.log("RAND button clicked, word index now: " + current_word_index);
+            // console.log("RAND button clicked, page now: " + current_page);
+            initalize();
             displayVals();
         }
         else { //next button
+
           current_word_index = current_word_index +1;
           current_page += 1;
-          console.log("NEXT button clicked, word index now: " + current_word_index);
-          console.log("NEXT button clicked, page now: " + current_page);
+          // console.log("NEXT button clicked, word index now: " + current_word_index);
+          // console.log("NEXT button clicked, page now: " + current_page);
+           initalize();
           displayVals();
     }
 
@@ -251,6 +369,8 @@
 
 
   </div> -->
+  <br/>
+<br/>
   <div id="choosetext">
   Select text to work with: 
   <select id="dropdown">
