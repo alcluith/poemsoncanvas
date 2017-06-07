@@ -1,10 +1,12 @@
 
 body {
-    /*text-align: center;
+    /*text-align: center;*/
     font-family: 'EB Garamond', serif;
     background-color: lightblue;
     font-size: large;
-    font-weight: bold;*/
+    font-weight: bold;
+    overflow-x: hidden;
+    overflow-y: hidden;
 /*background-attachment:fixed;
 background-position:center; */
 
@@ -18,10 +20,11 @@ background-position:center; */
 #mycanvas {
             
             margin-top: 30px;
-            margin-left: 200px;
+            /*margin-left: 200px;*//*
+            border: 10px inset white;*/
   /*margin-bottom:50px;
             background: #cccccc;
-            border: 10px inset brown;*/
+           
            /* position:absolute;
             top: 60;
             left: 200;*/

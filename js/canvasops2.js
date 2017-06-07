@@ -16,7 +16,7 @@ function makeTile(context, newWord, leftX, topY, lineHeight) {
     bottom: topY + lineHeight,
     visible: true
   }
-  console.log("MADE tile"  + ' word: ' + newTile.word  + ' left: ' + newTile.left + ' right: ' + newTile.top + ' top: ' + newTile.right + ' bottom: ' + newTile.bottom + ' ' + '\n');
+  // console.log("MADE tile"  + ' word: ' + newTile.word  + ' left: ' + newTile.left + ' right: ' + newTile.top + ' top: ' + newTile.right + ' bottom: ' + newTile.bottom + ' ' + '\n');
     
   return newTile;
 }
@@ -93,9 +93,9 @@ function wrapTiles(context,  x, y, maxWidth,maxHeight, lineHeight) {
 }
 
 
-function adjustBlackout(tiles, context, start, end) {
-  console.log("adjusting blackout");
-  for (var n = start; n < end+1; n++) {
+function adjustBlackout( context, start, end) {
+  console.log("adjusting blackout, start = " + start + ' end= ' + end);
+  for (var n = start - 1; n < end +1; n++) {
 
     if (!tiles[n].visible) {
       console.log("adjusting invisible tile: " + n);
@@ -117,8 +117,8 @@ function adjustBlackout(tiles, context, start, end) {
       } else {
         // extend blackout to remove gaps between several black tiles
         context.fillStyle = 'black';
-        context.fillRect(tiles[n].left , tiles[n].top,
-          (tiles[n].right - tiles[n].left + 1.5),
+        context.fillRect(tiles[n].left -1, tiles[n].top,
+          (tiles[n].right - tiles[n].left + 5.5),
           tiles[n].bottom - tiles[n].top);
       }
 
@@ -161,11 +161,11 @@ function toggleTile(context, n) {
 }
 
 
-function findTile(x, y, leftOffset) {
+function findTile(x, y) {
   var i = 0;
-  var adjY = y - 30;
+  var adjY = y - topOffset;
   var adjX = x - leftOffset;
-  // console.log("FIND tile left offset = " + leftOffset);
+   console.log("FIND tile top offset = " + topOffset);
   var found = false;
   while (i < tiles.length && !found) {
     if (tiles[i].left <= adjX &&
@@ -187,18 +187,97 @@ function findTile(x, y, leftOffset) {
 }
 
 
+function printTilesToLog(){
+   console.log("printing tiles");
+  for (var i = 0; i < 3; i++){
+    console.log("tile " + i + ' ' + tiles[i].word);
+  }
+}
 
-// function mouseClickEvent(e) {
-//   // alert("click event");
-//   mouseClick = true;
-//   if (e.offsetX) {
-//     mouseX = e.offsetX;
-//     mouseY = e.offsetY;
-//   } else if (e.layerX) {
-//     mouseX = e.layerX;
-//     mouseY = e.layerY;
-//   }
-// }
+// toggle tiles between blacked-out and visible
+function toggleTile(context, n) {
+  console.log("toggling tile " + n);
+  if (tiles[n].visible == true) {
+    // blackout tile
+    tiles[n].visible = false;
+    context.fillStyle = '#000';
+    // 0.5 to adjust for weird pixel thing on canvas
+    context.fillRect(tiles[n].left, tiles[n].top,
+      (tiles[n].right - tiles[n].left -1.5),
+      tiles[n].bottom - tiles[n].top);
+                   
+  } else {
+    //reveal tile
+    tiles[n].visible = true;
+    context.fillStyle = '#fff';
+    // 0.5 to adjust for weird pixel thing on canvas
+    context.fillRect(tiles[n].left - 1.5, tiles[n].top,
+      (tiles[n].right - tiles[n].left + 1),
+      tiles[n].bottom - tiles[n].top);
+    context.fillStyle = '#fff';
+    context.fillStyle = '#000';
+    context.fillText(tiles[n].word, tiles[n].left, tiles[n].top);
+  }
+}
+
+
+
+
+///////////////////
+// Event Handlers
+///////////////////
+
+
+function wordSelectStart( leftOffset, event) {
+  var tileNum = findTile(event.pageX, event.pageY, leftOffset);
+  console.log("in MOUSEDOWN, tilenum: " + tileNum + ' ' + 'eventx:'  + event.pageX + ' ' + 'eventy:'  + event.pageY );
+  console.log("in wordSelectSTART, word: " + tiles[tileNum].word + ' ' + 'word left:'  + tiles[tileNum].left + ' ' + 'tile right:'  + tiles[tileNum].right );
+  printTilesToLog();
+  dragstart = tileNum;
+  dragging = true;
+}
+
+// problem with tiles is here
+function wordSelectEnd( context, leftOffset) {
+  console.log("in MOUSEUP, coords: " + event.pageX + " " + event.pageY);
+  // console.log("printing tiles");
+  printTilesToLog();
+  var tileNum = findTile(event.pageX, event.pageY, leftOffset);
+  console.log("in mouseup tile: " + tileNum);
+  console.log("in mouseup DRAGGINg is: " + dragging + " dragstart is:" + dragstart);
+  if (dragging) {
+    // console.log("in mouseup if dragging  ");
+    if (tileNum != -1) {
+      // console.log("in mouseup about to do for loop  ");
+      for (i = dragstart; i <= tileNum; i++) {
+        // console.log("in mouseup about to toggle tile: " + i);
+        toggleTile(context, i);
+      //add another loop to adjust these tiles here
+
+      }
+      adjustBlackout(context, dragstart, tileNum);
+      dragging = false;
+
+    }
+
+  }
+ 
+}
+
+
+
+
+function mouseClickEvent(e) {
+  // alert("click event");
+  mouseClick = true;
+  if (e.offsetX) {
+    mouseX = e.offsetX;
+    mouseY = e.offsetY;
+  } else if (e.layerX) {
+    mouseX = e.layerX;
+    mouseY = e.layerY;
+  }
+}
 
 
 // console.log("space width is: " + (context.measureText(" ")).width);
