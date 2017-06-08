@@ -93,9 +93,9 @@ function wrapTiles(context,  x, y, maxWidth,maxHeight, lineHeight) {
 }
 
 
-function adjustBlackout( context, start, end) {
-  console.log("adjusting blackout, start = " + start + ' end= ' + end);
-  for (var n = start - 1; n < end +1; n++) {
+function adjustBlackout( context) {
+  console.log("adjusting blackout");
+  for (var n = 0 ; n < tiles.length ; n++) {
 
     if (!tiles[n].visible) {
       console.log("adjusting invisible tile: " + n);
@@ -162,22 +162,24 @@ function toggleTile(context, n) {
 
 
 function findTile(x, y) {
+ 
   var i = 0;
   var adjY = y - topOffset;
   var adjX = x - leftOffset;
    console.log("FIND tile top offset = " + topOffset);
   var found = false;
-  while (i < tiles.length && !found) {
-    if (tiles[i].left <= adjX &&
-      adjX <= tiles[i].right &&
-      tiles[i].top <= adjY &&
-      adjY <= tiles[i].bottom) {
-      console.log("tile found: " + tiles[i].word + i);
-      found = true;
-    } else {
-      i += 1;
+  
+    while (i < tiles.length && !found) {
+      if (tiles[i].left <= adjX &&
+        adjX <= tiles[i].right &&
+        tiles[i].top <= adjY &&
+        adjY <= tiles[i].bottom) {
+        console.log("tile found: " + tiles[i].word + i);
+        found = true;
+      } else {
+        i += 1;
+      }
     }
-  }
   if (!found) {
     console.log("tile not found");
     return -1;
@@ -185,6 +187,8 @@ function findTile(x, y) {
     return i;
   }
 }
+
+
 
 
 function printTilesToLog(){
@@ -221,6 +225,34 @@ function toggleTile(context, n) {
 }
 
 
+function findTile(x, y, leftOffset) {
+  var i = 0;
+  var adjY = y - 30;
+  var adjX = x - leftOffset;
+  // console.log("FIND tile left offset = " + leftOffset);
+  var found = false;
+  //while we've not run out of tiles, aren't right at the bottom
+  //of the canvas where there are no tiles and haven't found
+  // the right tile yet.
+  while (i < tiles.length  && !found) {
+    if (tiles[i].left <= adjX &&
+      adjX <= tiles[i].right &&
+      tiles[i].top <= adjY &&
+      adjY <= tiles[i].bottom) {
+      console.log("tile found: " + tiles[i].word + i);
+      found = true;
+    } else {
+      i += 1;
+    }
+  }
+  if (!found) {
+    console.log("tile not found");
+    return -1;
+  } else {
+    return i;
+  }
+}
+
 
 
 ///////////////////
@@ -231,10 +263,13 @@ function toggleTile(context, n) {
 function wordSelectStart( leftOffset, event) {
   var tileNum = findTile(event.pageX, event.pageY, leftOffset);
   console.log("in MOUSEDOWN, tilenum: " + tileNum + ' ' + 'eventx:'  + event.pageX + ' ' + 'eventy:'  + event.pageY );
+  if (tileNum != -1){
   console.log("in wordSelectSTART, word: " + tiles[tileNum].word + ' ' + 'word left:'  + tiles[tileNum].left + ' ' + 'tile right:'  + tiles[tileNum].right );
+  }
   printTilesToLog();
   dragstart = tileNum;
   dragging = true;
+
 }
 
 // problem with tiles is here

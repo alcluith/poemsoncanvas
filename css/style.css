@@ -2,7 +2,7 @@
 body {
     /*text-align: center;*/
     font-family: 'EB Garamond', serif;
-    background-color: lightblue;
+    background-color: white;
     font-size: large;
     font-weight: bold;
     overflow-x: hidden;
@@ -17,6 +17,21 @@ background-position:center; */
   text-align: center;
 }
 
+.btn-primary{
+
+  background: black;
+  
+  font-family: 'Open Sans', sans-serif;
+
+}
+
+.select-picker{
+
+  background: black;
+  color: white;
+  font-family: 'Open Sans', sans-serif;
+
+}
 #mycanvas {
             
             margin-top: 30px;
@@ -30,7 +45,10 @@ background-position:center; */
             left: 200;*/
          }
 
-#textpage{
+#controls{
+ font-family: 'Open Sans', sans-serif;
+
+
  /* background-color: blue;
   text-align: justify-all;
   margin-left: auto;

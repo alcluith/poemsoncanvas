@@ -3,7 +3,8 @@
  <head>
   <title>Poems in the Gaps</title>
   <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=EB+Garamond" >
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/> 
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, user-scalable=no"/> 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="./css/style.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -24,6 +25,7 @@
   var leftOffset = 0;
   var topOffset = 0;
 
+
   // var canvas = document.getElementById('mycanvas');
   //   var context = canvas.getContext('2d');
 
@@ -37,20 +39,29 @@
 // }
   function initalize(){
     var canvas = document.getElementById('mycanvas');
-    var context = canvas.getContext('2d');
+    var context = canvas.getContext('2d',{alpha: false});
+    //standardize canvas sizes
+
     // canvas.width = canvas.width;
       //is the user blacking out more than one word
     if (window.innerWidth < 480) {
       canvas.width =window.innerWidth ;
-      canvas.height = Math.floor(window.innerHeight * 75/100);
-      context.font = '16px Georgia';
-      maxWidth = canvas.width * 95 / 100;
-      maxHeight = canvas.height * 95 / 100;
+      canvas.height = Math.floor(window.innerHeight * 95/100);
+      context.font = '18px Georgia';
+      maxWidth = canvas.width * 96 / 100;
+      maxHeight = canvas.height * 96 / 100;
       topOffset = 0;
       // console.log("maxHeight small: " + maxHeight + "maxWidth: " + maxWidth);
-    } else if (canvas.width < 768) {
-      canvas.width = Math.floor(window.innerWidth* 65 / 100) ;
+    } 
+    else if (canvas.width < 768) {
+        if (Math.floor(window.innerHeight* 75 / 100)< window.innerWidth){
+          canvas.width = Math.floor(window.innerHeight* 95 / 100);
+        }
+      else{
+        canvas.width = Math.floor(window.innerWidth* 85 / 100);
+        }
       canvas.height = Math.floor(window.innerHeight* 75 / 100);
+
       // console.log('width med' + canvas.width);
       // console.log('height med' + canvas.height);
       maxWidth = Math.floor(canvas.width * 95 / 100);
@@ -62,14 +73,14 @@
       // console.log("maxHeight med: " + maxHeight + "maxWidth: " + maxWidth);
       context.font = '18px Georgia';
       } else {
-        context.font = '14px Georgia';
+        context.font = '18px Georgia';
         canvas.width = Math.floor(window.innerWidth * 65 / 100) ;
         canvas.height = Math.floor(window.innerHeight * 75 / 100);
         // console.log('width big' + canvas.width);
         // console.log('height big' + canvas.height);
         maxWidth = Math.floor(canvas.width * 95 / 100);
         maxHeight = Math.floor(canvas.height * 95 / 100);
-          topOffset = 30;
+        opOffset = 30;
         // console.log("maxHeight: " + maxHeight + "maxWidth: " + maxWidth);
       }
       
@@ -78,12 +89,13 @@
   function displayVals() {
     var xInitial = 0;
     var yInitial = 0;
+
     var lineIndex = new Array();
     var lineHeight = 30;
     var dragstart = 0;
     var dragging = false;
     var canvas = document.getElementById('mycanvas');
-    var context = canvas.getContext('2d');
+    var context = canvas.getContext('2d',{alpha: false});
     //get rid of any previous stuff on the canvas when moving page (hopefully)
      context.clearRect(0,0, canvas.width, canvas.height);
      context.fillStyle = 'white';
@@ -229,19 +241,20 @@
 
   </div> -->
   <br/>
-
+<br/>
   <div id="choosetext">
-  Select text to work with: 
-  <select id="dropdown">
+  Choose text: 
+  <select class="selectpicker" id="dropdown">
     <option value="tides">Time and Tide</option>
     <option value="frank">Frankenstein</option>
     <option value="dream">Dream Psychology</option>
-    <option value="music">Shakespeare and Music</option>
-    <option value="unix">Art of Unix Programming </option>
+    <option value="music">Shakespeare & Music</option>
+    <option value="unix">Unix Programming </option>
     <option value="alchemy">Story of Alchemy </option>
     <option value="super">Astounding Stories</option>
     
   </select>
+<br/>
 <br/>
 <!-- <button id="randombutton" type="button">
     random page
