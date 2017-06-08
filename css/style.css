@@ -1,18 +1,55 @@
 
 body {
-    text-align: center;
+    /*text-align: center;*/
     font-family: 'EB Garamond', serif;
-    background-color: lightblue;
+    background-color: white;
     font-size: large;
     font-weight: bold;
+    overflow-x: hidden;
+    overflow-y: hidden;
 /*background-attachment:fixed;
 background-position:center; */
 
 }
 
+#choosetext{
 
-#textpage{
-  background-color: white;
+  text-align: center;
+}
+
+.btn-primary{
+
+  background: black;
+  
+  font-family: 'Open Sans', sans-serif;
+
+}
+
+.select-picker{
+
+  background: black;
+  color: white;
+  font-family: 'Open Sans', sans-serif;
+
+}
+#mycanvas {
+            
+            margin-top: 30px;
+            /*margin-left: 200px;*//*
+            border: 10px inset white;*/
+  /*margin-bottom:50px;
+            background: #cccccc;
+           
+           /* position:absolute;
+            top: 60;
+            left: 200;*/
+         }
+
+#controls{
+ font-family: 'Open Sans', sans-serif;
+
+
+ /* background-color: blue;
   text-align: justify-all;
   margin-left: auto;
   margin-right: auto;
@@ -21,11 +58,11 @@ background-position:center; */
   width: 60%;
   padding: 20px;
   font-size: larger;
-  word-wrap: normal;
+  word-wrap: normal;*/
   
 }
 #introtextpage{
-  background-color: white;
+ /* background-color: white;
   text-align: justify-all;
   margin-left: auto;
   margin-right: auto;
@@ -34,52 +71,11 @@ background-position:center; */
   width: 60%;
   padding: 20px;
   font-size: large;
-  word-wrap: normal;
+  word-wrap: normal;*/
   
 }
 
 /*Redacted style CSS from https://codepen.io/adamruf/pen/GZwdrY by Adam Ruf  */
 
-span {
-  list-style-type: none;
-  position: relative;
-  margin: 0px;
-  padding: 0.2em 0.0em 0.0em 0.2em;
-  background: white;
-  font-family: 'EB Garamond', serif;
-  font-size: large;
-  line-height: 1.8;
-}
-
- span.redacted {
-  position: relative;
-  white-space: pre;
-  &:after {
-    background: rgba(0, 0, 0, 0.5);;
-    /*border-radius: 0.1em;*/
-    box-shadow: 0 0 3px rgba(0,0,0,0.75);
-    content: " ";
-    width: 50%;
-    height: 1.8em;
-    left: 0;
-    position: absolute;
-    /*transform: skewY(-5deg) rotate(5deg);*/
-   } 
-}
-
-span.redacted::after {
-  position: relative;
-  white-space: pre;
-    background: black;
-    /*border-radius: 0.1em;*/
-    box-shadow: 0 0 3px rgba(0,0,0,0.75);
-    content: " ";
-    width: 100%;
-    height: 1.8em;
-    left: 0;
-    position: absolute;
-    /*transform: skewY(-5deg) rotate(5deg);*/
-   
-}
 
 

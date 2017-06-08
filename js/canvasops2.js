@@ -3,40 +3,7 @@
 function getWords(text){       
   var allWordsNoBreaks =  text.replace(/\r?\n|\r/g, " ");
   allWords = allWordsNoBreaks.split(' ');
-  console.log( allWords);
-  // console.log('first word:' + allWords[1]);
-  // var numwords = allWords.length;
-  // console.log('num words:' + numwords);
-  // num_pages = Math.floor(numwords / page_length);
-  // console.log('num pages:' + num_pages);
-}
-
-// // if page_num = -100 select a random page in the range of 
-// //possible pages for the current text. Not currently using this
- // function getPage(pageNum){
- //  if (pageNum == -100){
- //    pageNum = Math.floor(Math.random(num_pages) + 1)
- //  }
- // }
-  // current_page = pageNum;
-
-//   $current_page = $page_num;
-//   if (($current_page < $num_pages) or ($current_page < 0)) {
-//   // // prepare and output html of that page
-//     echo "<div>";
-//     echo "<p>";
-//     $start = $page_num * $page_length;
-//    // echo "start " . $start ."\n";
-//     $words_out = 0;
-//    // echo "page length " + $page_length;
-//     while($words_out < $page_length){
-//         echo "<span id=\"" . $words_out. "\">" . $words[$start + $words_out] . " </span>"; 
-//         $words_out++;
-//         if ($words_out % $linelength == 0) {
-//           echo "<br>";
-//         } 
-//       }
-
+  }
 
 
 // make a tile containing a word
@@ -55,9 +22,10 @@ function makeTile(context, newWord, leftX, topY, lineHeight) {
 }
 
 //place tile on canvas
-function placeTiles(tiles,context) {
+function placeTiles(context) {
+  console.log('placing tiles ');
   for (var i = 0; i < tiles.length; i++) {
-    console.log('placing tile ' + i + ' ' + tiles[i].word);
+      
     context.fillStyle = '#00c';
     context.textBaseline = "top";
     context.fillStyle = '#000';
@@ -69,12 +37,13 @@ function placeTiles(tiles,context) {
 // of pages to be displayed, just set current_page_pointer to word after
 //last one displayed
 // arrange the text in the array tiles so that it will fit on the canvas
-function wrapTiles(tiles,context,  x, y, maxWidth,maxHeight, lineHeight) {
+//USE TILE INDE HERE?
+function wrapTiles(context,  x, y, maxWidth,maxHeight, lineHeight) {
   // var words = text.split(' ');
   // position of current word in array of tiles
-  console.log("in WRAPTILES,  current_word_index is " + current_word_index);
-  var tileIndex = 0;
-  // x and y pos of current tile top left corner
+  // console.log("in WRAPTILES,  current_word_index is " + current_word_index);
+   var tileIndex = 0;
+  // x and y pos of current tile top leftf corner
   var xPos = x;
   var yPos = y;
   for (var n = current_word_index; n < allWords.length; n++) {
@@ -94,11 +63,18 @@ function wrapTiles(tiles,context,  x, y, maxWidth,maxHeight, lineHeight) {
         // console.log("INCR ypos now equals: " + yPos);
         if (yPos > maxHeight){
           current_word_index = n;
+           if (page_length == 0 && current_word_index > 0) {
+            page_length = current_word_index;
+            num_pages = Math.ceil(allWords.length / page_length);
+            // console.log("WRAPPED page length: " + page_length + ' num pages: ' + num_pages);
+           }
           // console.log("TOO BIG: ypos now equals: " + yPos);
-            console.log("word INDEX: " + current_word_index);
+            // console.log("WRAPPED word INDEX: " + current_word_index);
+            // console.log("WRAPPED page length: " + page_length );
           break;
         }
         xPos = x;
+
         tile = makeTile(context, (allWords[n] + ' '), xPos, yPos, lineHeight);
         tiles[tileIndex] = tile;
         xPos = tile.right;
@@ -117,9 +93,9 @@ function wrapTiles(tiles,context,  x, y, maxWidth,maxHeight, lineHeight) {
 }
 
 
-function adjustBlackout(tiles, context) {
+function adjustBlackout( context) {
   console.log("adjusting blackout");
-  for (var n = 1; n < tiles.length; n++) {
+  for (var n = 0 ; n < tiles.length ; n++) {
 
     if (!tiles[n].visible) {
       console.log("adjusting invisible tile: " + n);
@@ -141,8 +117,8 @@ function adjustBlackout(tiles, context) {
       } else {
         // extend blackout to remove gaps between several black tiles
         context.fillStyle = 'black';
-        context.fillRect(tiles[n].left, tiles[n].top,
-          (tiles[n].right - tiles[n].left + 4.5),
+        context.fillRect(tiles[n].left -1, tiles[n].top,
+          (tiles[n].right - tiles[n].left + 5.5),
           tiles[n].bottom - tiles[n].top);
       }
 
@@ -152,15 +128,22 @@ function adjustBlackout(tiles, context) {
 
 
 }
+
+function clearTiles(){
+  tiles = [];
+  // for (var i = 0; i< tiles.length; i++){
+
+  // }
+}
 // toggle tiles between blacked-out and visible
-function toggleTile(tiles,context, n) {
+function toggleTile(context, n) {
   if (tiles[n].visible == true) {
     // blackout tile
     tiles[n].visible = false;
     context.fillStyle = '#000';
     // 0.5 to adjust for weird pixel thing on canvas
     context.fillRect(tiles[n].left, tiles[n].top,
-      (tiles[n].right - tiles[n].left),
+      (tiles[n].right - tiles[n].left -1.5),
       tiles[n].bottom - tiles[n].top);
                    
   } else {
@@ -178,14 +161,84 @@ function toggleTile(tiles,context, n) {
 }
 
 
-function findTile(tiles,x, y) {
+function findTile(x, y) {
+ 
   var i = 0;
+  var adjY = y - topOffset;
+  var adjX = x - leftOffset;
+   console.log("FIND tile top offset = " + topOffset);
   var found = false;
-  while (i < tiles.length && !found) {
-    if (tiles[i].left <= x &&
-      x <= tiles[i].right &&
-      tiles[i].top <= y &&
-      y <= tiles[i].bottom) {
+  
+    while (i < tiles.length && !found) {
+      if (tiles[i].left <= adjX &&
+        adjX <= tiles[i].right &&
+        tiles[i].top <= adjY &&
+        adjY <= tiles[i].bottom) {
+        console.log("tile found: " + tiles[i].word + i);
+        found = true;
+      } else {
+        i += 1;
+      }
+    }
+  if (!found) {
+    console.log("tile not found");
+    return -1;
+  } else {
+    return i;
+  }
+}
+
+
+
+
+function printTilesToLog(){
+   console.log("printing tiles");
+  for (var i = 0; i < 3; i++){
+    console.log("tile " + i + ' ' + tiles[i].word);
+  }
+}
+
+// toggle tiles between blacked-out and visible
+function toggleTile(context, n) {
+  console.log("toggling tile " + n);
+  if (tiles[n].visible == true) {
+    // blackout tile
+    tiles[n].visible = false;
+    context.fillStyle = '#000';
+    // 0.5 to adjust for weird pixel thing on canvas
+    context.fillRect(tiles[n].left, tiles[n].top,
+      (tiles[n].right - tiles[n].left -1.5),
+      tiles[n].bottom - tiles[n].top);
+                   
+  } else {
+    //reveal tile
+    tiles[n].visible = true;
+    context.fillStyle = '#fff';
+    // 0.5 to adjust for weird pixel thing on canvas
+    context.fillRect(tiles[n].left - 1.5, tiles[n].top,
+      (tiles[n].right - tiles[n].left + 1),
+      tiles[n].bottom - tiles[n].top);
+    context.fillStyle = '#fff';
+    context.fillStyle = '#000';
+    context.fillText(tiles[n].word, tiles[n].left, tiles[n].top);
+  }
+}
+
+
+function findTile(x, y, leftOffset) {
+  var i = 0;
+  var adjY = y - 30;
+  var adjX = x - leftOffset;
+  // console.log("FIND tile left offset = " + leftOffset);
+  var found = false;
+  //while we've not run out of tiles, aren't right at the bottom
+  //of the canvas where there are no tiles and haven't found
+  // the right tile yet.
+  while (i < tiles.length  && !found) {
+    if (tiles[i].left <= adjX &&
+      adjX <= tiles[i].right &&
+      tiles[i].top <= adjY &&
+      adjY <= tiles[i].bottom) {
       console.log("tile found: " + tiles[i].word + i);
       found = true;
     } else {
@@ -199,40 +252,53 @@ function findTile(tiles,x, y) {
     return i;
   }
 }
+
+
+
 ///////////////////
 // Event Handlers
 ///////////////////
 
 
-function wordSelectStart( tiles,event) {
-  var tileNum = findTile(tiles,event.pageX, event.pageY);
-  console.log("in wordSelectStart, word: " + tileNum );
+function wordSelectStart( leftOffset, event) {
+  var tileNum = findTile(event.pageX, event.pageY, leftOffset);
+  console.log("in MOUSEDOWN, tilenum: " + tileNum + ' ' + 'eventx:'  + event.pageX + ' ' + 'eventy:'  + event.pageY );
+  if (tileNum != -1){
+  console.log("in wordSelectSTART, word: " + tiles[tileNum].word + ' ' + 'word left:'  + tiles[tileNum].left + ' ' + 'tile right:'  + tiles[tileNum].right );
+  }
+  printTilesToLog();
   dragstart = tileNum;
   dragging = true;
+
 }
 
-
-function wordSelectEnd(tiles, context) {
-  console.log("in mouseup, coords: " + event.pageX + " " + event.pageY);
-  var tileNum = findTile(tiles,event.pageX, event.pageY);
+// problem with tiles is here
+function wordSelectEnd( context, leftOffset) {
+  console.log("in MOUSEUP, coords: " + event.pageX + " " + event.pageY);
+  // console.log("printing tiles");
+  printTilesToLog();
+  var tileNum = findTile(event.pageX, event.pageY, leftOffset);
   console.log("in mouseup tile: " + tileNum);
-  console.log("in mouseup dragging is: " + dragging + "dragstart is:" + dragstart);
+  console.log("in mouseup DRAGGINg is: " + dragging + " dragstart is:" + dragstart);
   if (dragging) {
-    console.log("in mouseup if dragging  ");
+    // console.log("in mouseup if dragging  ");
     if (tileNum != -1) {
-      console.log("in mouseup about to do for loop  ");
+      // console.log("in mouseup about to do for loop  ");
       for (i = dragstart; i <= tileNum; i++) {
-        console.log("in mouseup about to toggle tile: " + i);
-        toggleTile(tiles, context, i);
-      }
+        // console.log("in mouseup about to toggle tile: " + i);
+        toggleTile(context, i);
+      //add another loop to adjust these tiles here
 
+      }
+      adjustBlackout(context, dragstart, tileNum);
       dragging = false;
 
     }
 
   }
-  adjustBlackout(tiles, context);
+ 
 }
+
 
 
 
