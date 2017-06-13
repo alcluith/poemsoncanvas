@@ -24,6 +24,7 @@
   var maxHeight = 0;
   var leftOffset = 0;
   var topOffset = 0;
+  var textSource = "";
 
 
   // var canvas = document.getElementById('mycanvas');
@@ -40,6 +41,7 @@
   function initalize(){
     var canvas = document.getElementById('mycanvas');
     var context = canvas.getContext('2d',{alpha: false});
+    console.log("IN initialize");
     //standardize canvas sizes
 
     // canvas.width = canvas.width;
@@ -51,7 +53,9 @@
       maxWidth = canvas.width * 96 / 100;
       maxHeight = canvas.height * 96 / 100;
       topOffset = 0;
-      // console.log("maxHeight small: " + maxHeight + "maxWidth: " + maxWidth);
+      console.log("maxHeight small: " + maxHeight + "maxWidth: " + maxWidth);
+      context.fillStyle = 'blue';
+     context.fillRect(0,0,canvas.width,canvas.height );
     } 
     else if (canvas.width < 768) {
         if (Math.floor(window.innerHeight* 75 / 100)< window.innerWidth){
@@ -62,15 +66,15 @@
         }
       canvas.height = Math.floor(window.innerHeight* 75 / 100);
 
-      // console.log('width med' + canvas.width);
-      // console.log('height med' + canvas.height);
+      console.log('width med' + canvas.width);
+      console.log('height med' + canvas.height);
       maxWidth = Math.floor(canvas.width * 95 / 100);
       maxHeight = Math.floor(canvas.height * 95 / 100);
       leftOffset = (window.innerWidth - canvas.width)/2;
       topOffset = 30;
       // console.log("LEFT Offset " + leftOffset);
        document.getElementById('mycanvas').style.marginLeft = leftOffset;
-      // console.log("maxHeight med: " + maxHeight + "maxWidth: " + maxWidth);
+      console.log("maxHeight med: " + maxHeight + "maxWidth: " + maxWidth);
       context.font = '18px Georgia';
       } else {
         context.font = '18px Georgia';
@@ -85,6 +89,21 @@
       }
       
   }
+
+//deal with uploading a user text file
+ // Callback from a <input type="file" onchange="onChange(event)">
+function onChange(event) {
+  var file = event.target.files[0];
+  var reader = new FileReader();
+  reader.onload = function(event) {
+    // The file's text will be printed here
+    console.log(event.target.result)
+  };
+
+  reader.readAsText(file);
+}
+
+
 
   function displayVals() {
     console.log("IN displayVals");
@@ -106,22 +125,64 @@
     canvas.addEventListener("click", mouseClickEvent, false);
 
     canvas.addEventListener('mousedown', wordSelectStart.bind(null, leftOffset), false);
-    canvas.addEventListener("touchstart", wordSelectStart.bind(null,leftOffset), false );
     canvas.addEventListener('mouseup', wordSelectEnd.bind(null, context, leftOffset), false);
-    canvas.addEventListener('touchend', function(e) {
-        // prevent delay and simulated mouse events 
+    
+    canvas.addEventListener('touchstart', function(e){
+        touchobj = e.changedTouches[0] // reference first touch point for this event
+        
+        var touch = touchobj;
+        var x = touch.clientX;
+        var y = touch.clientY;
+        console.log("in touch START touchobj X" + x + "in touch End touchobj y " + y);
+        // var dist = parseInt(touchobj.clientX) - startx // calculate dist traveled by touch point
+        // move box according to starting pos plus dist
+        // with lower limit 0 and upper limit 380 so it doesn't move outside track:
+        // box2.style.left = ( (boxleft + dist > 380)? 380 : (boxleft + dist < 0)? 0 : boxleft + dist ) + 'px'
         e.preventDefault();
-        wordSelectEnd(context,leftOffset);
-      });
+        wordTouchStart(leftOffset, x, y, e);
+    }, false);
+
+    canvas.addEventListener('touchmove', function(e){
+        touchobj = e.changedTouches[0] // reference first touch point for this event
+        console.log("touchobj" + touchobj);
+        var touch = touchobj.clientX;
+        console.log("touchobj X" + touch);
+        // var dist = parseInt(touchobj.clientX) - startx // calculate dist traveled by touch point
+        // move box according to starting pos plus dist
+        // with lower limit 0 and upper limit 380 so it doesn't move outside track:
+        // box2.style.left = ( (boxleft + dist > 380)? 380 : (boxleft + dist < 0)? 0 : boxleft + dist ) + 'px'
+
+        e.preventDefault();
+        // wordSelectStart(leftOffset, e);
+    }, false);
+    
+     canvas.addEventListener('touchend', function(e){
+        touchobj = e.changedTouches[0] // reference first touch point for this event
+        console.log("touchobj" + touchobj);
+        var touch = touchobj;
+        var x = touch.clientX;
+        var y = touch.clientY;
+        console.log("in touch End touchobj X" + x + "in touch End touchobj y " + y);
+        // var dist = parseInt(touchobj.clientX) - startx // calculate dist traveled by touch point
+        // move box according to starting pos plus dist
+        // with lower limit 0 and upper limit 380 so it doesn't move outside track:
+        // box2.style.left = ( (boxleft + dist > 380)? 380 : (boxleft + dist < 0)? 0 : boxleft + dist ) + 'px'
+        e.preventDefault();
+        wordTouchEnd(context, leftOffset,x, y, e);
+    }, false);
+
+    // canvas.addEventListener('touchend', wordSelectEnd.bind(null,context,leftOffset), false);
+    
     // add event handler for file upload
-      document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+      // document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
 
     var xInitial = Math.floor((canvas.width - maxWidth) / 2); 
-    // console.log('x initial val: ' + xInitial);
+    console.log('x initial val: ' + xInitial);
     var yInitial = 0;
-    // console.log('y initial val: ' + yInitial);
+    console.log('y initial val: ' + yInitial);
     var text = '';
-    var text_name = $( "#dropdown" ).val();
+    var text_name = document.getElementById(textSource).value;
+    console.log("TEXTname is " + text_name);
      context.fillStyle = '#333';
     var spacewidth = (context.measureText(" ")).width;
     
@@ -143,15 +204,17 @@
   // The response is passed to the function
     .done(function( data) {
       console.log("word INDEX: in done " + current_word_index);
-      var current_text = document.getElementById("dropdown").value;
-      // console.log("text chosen: " + current_text);
-      alltext = data;
-      getWords(alltext);
-       wrapTiles(context, xInitial, yInitial, maxWidth, maxHeight,lineHeight);
-       placeTiles(context);
-       console.log("printing TILES n DONE");
-       printTilesToLog();
-        // console.log("DONE page length: " + page_length );
+      var current_text = document.getElementById(textSource).value;
+       console.log("text chosen: " + current_text);
+       alltext = data;
+       console.log(alltext.substr(0,100));
+        getWords(alltext);
+
+        wrapTiles(context, xInitial, yInitial, maxWidth, maxHeight,lineHeight);
+        placeTiles(context);
+      //  console.log("printing TILES n DONE");
+      //  printTilesToLog();
+      //   // console.log("DONE page length: " + page_length );
         console.log("DONE PAGE LOADED" );
   })
 
@@ -173,17 +236,27 @@
 // display a default page on load
  $( window ).on( "load", function() {
         console.log( "window loaded" );
-        initalize();
-        displayVals(0);
+        $(".makepoem").hide();
+        // initalize();
+        // displayVals(0);
     });
   
 
 //display new text from the beginning when selected
   $(document).ready(function(){
-      $( "select" ).change(function(){
+      $( "select" ).change(function(event){
         current_word_index = 0;
-        displayVals(current_word_index) });
+        
+        textSource = event.target.id;
+        console.log("select changed, textSource is " + textSource);
+        $(".gettext").hide();
+        $(".makepoem").show();
+        initalize();
+        displayVals(current_word_index)
+         });
   });
+
+
 
 //display next page  in current text when clicked
   $(document).ready(function(){
@@ -224,29 +297,86 @@
 
  </head>
  <body>
-<!--  <nav class="navbar navbar-inverse">
-  <div class="container-fluid">
-    <ul class="nav navbar-nav">
-      <li class="active"><a href="">Poems in the Gaps</a></li>
-      <li><a href="makeapoem.php">Make a poem</a></li>
-      <li><a href="credits.html">About</a></li>
-      <!-- <li><a href="#">Page 3</a></li> -->
-    <!-- </ul>
-  </div> -->
-<!-- </nav>  -->
+
+<!-- first "page", get the user's selected text  -->
+<div class="gettext">
+  <center>
+
+    <div class="row justify-content-center" id="fiction">
+      <div class="col justify-content-center ">
+        <br/>
+        Choose a text from <em>one</em> of the following:
+        <br/>
+        Fiction: 
+      </div>
+      <div class="col ">
+        <select class="selectpicker" id="ddfic" >
+        <option value ="instruction" selected > -- Please select --</option>
+          <option value="frank">Frankenstein</option>
+          <option value="super">Astounding Stories</option>
+        </select> 
+        <br/>
+        <br/>
+      </div>
+    </div>
+
+    <div class="row " id="nonfiction">
+      <div class="col">
+       or Non-fiction: 
+      </div>
+      <div class="col">
+        <select class="selectpicker" id="ddnfic">
+          <option value ="instruction" selected > -- Please select --</option>
+          <option value="tides">Time and Tide</option>
+          <option value="dream">Dream Psychology</option>
+          <option value="music">Shakespeare & Music</option>
+          <option value="unix">Unix Programming </option>
+          <option value="alchemy">Story of Alchemy </option>
+        </select> 
+        <br/>
+        <br/>
+      </div>
+    </div>
+  
+
+  <div class="row " id="politics">
+    <div class="col">
+     or Politics:
+    </div> 
+    <div class="col">
+      <select class="selectpicker" id="ddpol">
+       <option value ="instruction" selected > -- Please select --</option>
+        <option value="dream">Dream Psychology</option>
+        <option value="super">Astounding Stories</option>
+      </select> 
+      <br/>
+      <br/>
+    </div>
+  </div>
+
+
+<div class="row" id="upload">
+  <div class="col">
+    or upload a file:
+  </div>
+  <div class="col justify-content-right">
+
+    <input  type="file" id="fileinput" onchange="onChange(event)"/>
+  </div>
+</div>
+</center>
+
+</div> <!-- end gettext div -->
 
 
 
-  <!-- display page -->
+<!-- display canvas and next page buttons -->
+<div class="makepoem">
 <canvas id="mycanvas"></canvas>
 
-  <!-- <div id="textpage">
-
-
-  </div> -->
  
 <br/>
-  <div id="choosetext">
+  <!-- <div id="choosetext">
 
   Choose existing text: 
   <select class="selectpicker" id="dropdown">
@@ -258,17 +388,14 @@
     <option value="alchemy">Story of Alchemy </option>
     <option value="super">Astounding Stories</option>
     
-  </select> 
+  </select>  -->
 
-     or: <input  type="file" id="fileinput"/>
-
-<br/>
-<br/>
+   
 <!-- <button id="randombutton" type="button">
     random page
   </button>
  -->
-
+<div id="controls">
 <button class="btn btn-primary btn-responsive" id="prevbutton" type="button">
     prev page
   </button>
@@ -280,8 +407,10 @@
 <button class="btn btn-primary btn-responsive" id="randbutton" type="button">
     random page
 </button>
+
 </div>
 
+</div> <!-- end makepoem "page" -->
 
  </body>
  

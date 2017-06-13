@@ -84,10 +84,11 @@ function wrapTiles(context,  x, y, maxWidth,maxHeight, lineHeight) {
   // x and y pos of current tile top leftf corner
   var xPos = x;
   var yPos = y;
+  console.log("IN wrap tiles");
   for (var n = current_word_index; n < allWords.length; n++) {
     // make a tile with the new word 
     var testTile = makeTile(context, (allWords[n] + ' '), xPos, yPos, lineHeight);
-    // console.log("making tile" + n + testTile.word  + ' left ' + testTile.left + ' right ' + testTile.top + ' top ' + testTile.right + ' bottom' + testTile.bottom + ' ' + '\n');
+     console.log("MADE tile to wrap" + n + testTile.word  + ' left ' + testTile.left + ' right ' + testTile.right + ' top ' + testTile.top + ' bottom' + testTile.bottom + ' ' + '\n');
     //if tileN.right is further over than max width
     if (testTile.right > maxWidth && n > 0) {
       //check word isn't ridiculously long and takes up more than a line
@@ -261,7 +262,7 @@ function findTile(x, y, leftOffset) {
   var i = 0;
   var adjY = y - 30;
   var adjX = x - leftOffset;
-  // console.log("FIND tile left offset = " + leftOffset);
+   console.log("FIND tile left offset = " + leftOffset);
   var found = false;
   //while we've not run out of tiles, aren't right at the bottom
   //of the canvas where there are no tiles and haven't found
@@ -303,16 +304,19 @@ function fixupMouse(event) {
         x: event.x ? event.x : event.clientX,
         y: event.y ? event.y : event.clientY
     };
+    console.log("fixupMouse event.x " + e.x);
     return e;
 }
 
-function wordSelectStart( leftOffset, event) {
+function wordSelectStart(leftOffset,  event) {
+ 
   e = fixupMouse(event);
-
+  
   var tileNum = findTile(e.x, e.y, leftOffset);
-  // console.log("in MOUSEDOWN, tilenum: " + tileNum + ' ' + 'eventx:'  + event.pageX + ' ' + 'eventy:'  + event.pageY );
+
+   console.log("in MOUSEDOWN, tilenum: " + tileNum + ' ' + 'eventx:'  + e.x + ' ' + 'eventy:'  + e.y );
   if (tileNum != -1){
-  console.log("in wordSelectSTART, word: " + tiles[tileNum].word + ' ' + 'word left:'  + tiles[tileNum].left + ' ' + 'tile right:'  + tiles[tileNum].right );
+  console.log("in wordSelectSTART, word: " + tiles[tileNum].word + ' ' + 'word left:'  + tiles[tileNum].left + ' ' + 'tile right:'  + tiles[tileNum].right + ' ' + 'tile bottom:'  + tiles[tileNum].bottom);
   }
   printTilesToLog();
   dragstart = tileNum;
@@ -320,14 +324,63 @@ function wordSelectStart( leftOffset, event) {
 
 }
 
-// problem with tiles is here
-function wordSelectEnd( context, leftOffset,event) {
-  e = fixupMouse(event);
 
+function wordTouchStart(leftOffset, x, y, event) {
+ 
+  e = fixupMouse(event);
+  
+  var tileNum = findTile(x, y, leftOffset);
+
+   console.log("in MOUSEDOWN, tilenum: " + tileNum + ' ' + 'eventx:'  + x + ' ' + 'eventy:'  + y );
+  if (tileNum != -1){
+  console.log("in wordSelectSTART, word: " + tiles[tileNum].word + ' ' + 'word left:'  + tiles[tileNum].left + ' ' + 'tile right:'  + tiles[tileNum].right + ' ' + 'tile bottom:'  + tiles[tileNum].bottom);
+  }
+  // printTilesToLog();
+  dragstart = tileNum;
+  dragging = true;
+
+}
+
+// problem with tiles is here
+function wordSelectEnd(context, leftOffset,event) {
+ 
+  // console.log("end touch x : " + event.changedTouches[0].pageX);
+  e = fixupMouse(event);
+  // changedTouches[0].pageX
   printTilesToLog();
   var tileNum = findTile(e.x, e.y, leftOffset);
-  console.log("in mouseup tile: " + tileNum);
-  console.log("in mouseup DRAGGINg is: " + dragging + " dragstart is:" + dragstart);
+  console.log("in MOUSEUP, tilenum: " + tileNum + ' ' + 'eventx:'  + e.x + ' ' + 'eventy:'  + e.y );
+  console.log("caller was: "+ e.target);
+  console.log("in mouseup DRAGGINg is: " + dragging + " dragstart is:" + dragstart+ " leftOffset is:" + leftOffset);
+  if (dragging) {
+    // console.log("in mouseup if dragging  ");
+    if (tileNum != -1) {
+      // console.log("in mouseup about to do for loop  ");
+      for (i = dragstart; i <= tileNum; i++) {
+        // console.log("in mouseup about to toggle tile: " + i);
+        toggleTile(context, i);
+      //add another loop to adjust these tiles here
+
+      }
+      adjustBlackout(context, dragstart, tileNum);
+      dragging = false;
+
+    }
+
+  }
+ 
+}
+
+function wordTouchEnd(context, leftOffset,x, y,event) {
+ 
+  // console.log("end touch x : " + event.changedTouches[0].pageX);
+  // e = fixupMouse(event);
+  // changedTouches[0].pageX
+  printTilesToLog();
+  var tileNum = findTile(x, y, leftOffset);
+  console.log("in MOUSEUP, tilenum: " + tileNum + ' ' + 'eventx:'  + x + ' ' + 'eventy:'  + y );
+  console.log("caller was: "+ e.target);
+  console.log("in mouseup DRAGGINg is: " + dragging + " dragstart is:" + dragstart+ " leftOffset is:" + leftOffset);
   if (dragging) {
     // console.log("in mouseup if dragging  ");
     if (tileNum != -1) {
@@ -349,9 +402,9 @@ function wordSelectEnd( context, leftOffset,event) {
 
 
 
-
 function mouseClickEvent(e) {
   // alert("click event");
+  e.preventDefault();
   mouseClick = true;
   if (e.offsetX) {
     mouseX = e.offsetX;
