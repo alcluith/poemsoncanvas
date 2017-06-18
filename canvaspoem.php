@@ -25,6 +25,7 @@
   var leftOffset = 0;
   var topOffset = 0;
   var textSource = "";
+  var fileSource = "";
 
 
   // var canvas = document.getElementById('mycanvas');
@@ -46,26 +47,26 @@
 
     // canvas.width = canvas.width;
       //is the user blacking out more than one word
+      // set margin-top here for top offset
     if (window.innerWidth < 480) {
       canvas.width =window.innerWidth ;
-      canvas.height = Math.floor(window.innerHeight * 95/100);
-      context.font = '18px Georgia';
+      canvas.height = Math.floor(window.innerHeight * 75/100);
+      context.font = '16px Georgia';
       maxWidth = canvas.width * 96 / 100;
       maxHeight = canvas.height * 96 / 100;
-      topOffset = 0;
-      console.log("maxHeight small: " + maxHeight + "maxWidth: " + maxWidth);
-      context.fillStyle = 'blue';
-     context.fillRect(0,0,canvas.width,canvas.height );
-    } 
+      topOffset = 30;
+     //  console.log("maxHeight small: " + maxHeight + "maxWidth: " + maxWidth);
+     //  context.fillStyle = 'blue';
+     // context.fillRect(0,0,canvas.width,canvas.height );
+      } 
     else if (canvas.width < 768) {
         if (Math.floor(window.innerHeight* 75 / 100)< window.innerWidth){
           canvas.width = Math.floor(window.innerHeight* 95 / 100);
         }
-      else{
-        canvas.width = Math.floor(window.innerWidth* 85 / 100);
+        else{
+          canvas.width = Math.floor(window.innerWidth* 85 / 100);
         }
       canvas.height = Math.floor(window.innerHeight* 75 / 100);
-
       console.log('width med' + canvas.width);
       console.log('height med' + canvas.height);
       maxWidth = Math.floor(canvas.width * 95 / 100);
@@ -76,7 +77,8 @@
        document.getElementById('mycanvas').style.marginLeft = leftOffset;
       console.log("maxHeight med: " + maxHeight + "maxWidth: " + maxWidth);
       context.font = '18px Georgia';
-      } else {
+      } 
+    else {
         context.font = '18px Georgia';
         canvas.width = Math.floor(window.innerWidth * 65 / 100) ;
         canvas.height = Math.floor(window.innerHeight * 75 / 100);
@@ -84,60 +86,18 @@
         // console.log('height big' + canvas.height);
         maxWidth = Math.floor(canvas.width * 95 / 100);
         maxHeight = Math.floor(canvas.height * 95 / 100);
-        opOffset = 30;
+        topOffset = 30;
         // console.log("maxHeight: " + maxHeight + "maxWidth: " + maxWidth);
       }
-      
-  }
 
-//deal with uploading a user text file
- // Callback from a <input type="file" onchange="onChange(event)">
-function onChange(event) {
-  var file = event.target.files[0];
-  var reader = new FileReader();
-  reader.onload = function(event) {
-    // The file's text will be printed here
-    console.log(event.target.result)
-  };
-
-  reader.readAsText(file);
-}
-
-
-
-  function displayVals() {
-    console.log("IN displayVals");
-    var xInitial = 0;
-    var yInitial = 0;
-
-    var lineIndex = new Array();
-    var lineHeight = 30;
-    var dragstart = 0;
-    var dragging = false;
-    var canvas = document.getElementById('mycanvas');
-    var context = canvas.getContext('2d',{alpha: false});
-    //get rid of any previous stuff on the canvas when moving page (hopefully)
-     context.clearRect(0,0, canvas.width, canvas.height);
-     context.fillStyle = 'white';
-     context.fillRect(0,0,canvas.width,canvas.height );
-     tiles = [];
-    // add event handlers to canvas
     canvas.addEventListener("click", mouseClickEvent, false);
-
     canvas.addEventListener('mousedown', wordSelectStart.bind(null, leftOffset), false);
     canvas.addEventListener('mouseup', wordSelectEnd.bind(null, context, leftOffset), false);
-    
     canvas.addEventListener('touchstart', function(e){
-        touchobj = e.changedTouches[0] // reference first touch point for this event
-        
-        var touch = touchobj;
+        touch = e.changedTouches[0] // reference first touch point for this event
         var x = touch.clientX;
         var y = touch.clientY;
         console.log("in touch START touchobj X" + x + "in touch End touchobj y " + y);
-        // var dist = parseInt(touchobj.clientX) - startx // calculate dist traveled by touch point
-        // move box according to starting pos plus dist
-        // with lower limit 0 and upper limit 380 so it doesn't move outside track:
-        // box2.style.left = ( (boxleft + dist > 380)? 380 : (boxleft + dist < 0)? 0 : boxleft + dist ) + 'px'
         e.preventDefault();
         wordTouchStart(leftOffset, x, y, e);
     }, false);
@@ -147,11 +107,6 @@ function onChange(event) {
         console.log("touchobj" + touchobj);
         var touch = touchobj.clientX;
         console.log("touchobj X" + touch);
-        // var dist = parseInt(touchobj.clientX) - startx // calculate dist traveled by touch point
-        // move box according to starting pos plus dist
-        // with lower limit 0 and upper limit 380 so it doesn't move outside track:
-        // box2.style.left = ( (boxleft + dist > 380)? 380 : (boxleft + dist < 0)? 0 : boxleft + dist ) + 'px'
-
         e.preventDefault();
         // wordSelectStart(leftOffset, e);
     }, false);
@@ -159,33 +114,60 @@ function onChange(event) {
      canvas.addEventListener('touchend', function(e){
         touchobj = e.changedTouches[0] // reference first touch point for this event
         console.log("touchobj" + touchobj);
-        var touch = touchobj;
         var x = touch.clientX;
         var y = touch.clientY;
         console.log("in touch End touchobj X" + x + "in touch End touchobj y " + y);
-        // var dist = parseInt(touchobj.clientX) - startx // calculate dist traveled by touch point
-        // move box according to starting pos plus dist
-        // with lower limit 0 and upper limit 380 so it doesn't move outside track:
-        // box2.style.left = ( (boxleft + dist > 380)? 380 : (boxleft + dist < 0)? 0 : boxleft + dist ) + 'px'
         e.preventDefault();
         wordTouchEnd(context, leftOffset,x, y, e);
     }, false);
 
-    // canvas.addEventListener('touchend', wordSelectEnd.bind(null,context,leftOffset), false);
-    
-    // add event handler for file upload
-      // document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+      
+  }
 
+
+  function displayVals() {
+    console.log("IN displayVals");
+    var xInitial = 0;
+    var yInitial = 0;
+
+    // var lineIndex = new Array();
+    var lineHeight = 30;
+    // var dragstart = 0;
+    // var dragging = false;
+    var canvas = document.getElementById('mycanvas');
+    var context = canvas.getContext('2d',{alpha: false});
+    //get rid of any previous stuff on the canvas when moving page (hopefully)
+    context.clearRect(0,0, canvas.width, canvas.height);
+    context.fillStyle = 'white';
+    context.fillRect(0,0,canvas.width,canvas.height );
+    context.fillStyle = 'black';
+    tiles = [];
     var xInitial = Math.floor((canvas.width - maxWidth) / 2); 
     console.log('x initial val: ' + xInitial);
     var yInitial = 0;
     console.log('y initial val: ' + yInitial);
-    var text = '';
-    var text_name = document.getElementById(textSource).value;
-    console.log("TEXTname is " + text_name);
-     context.fillStyle = '#333';
-    var spacewidth = (context.measureText(" ")).width;
+    // var text = '';
+    // var text_name = document.getElementById(textSource).value;
+    // console.log("TEXTname is " + text_name);
+    // var spacewidth = (context.measureText(" ")).width;
+    //add a bit here to only do the ajax call if you don't already have the text
+    //from an upload. this should really go into Initialize.
+     //This is the bit we need to call every time, regardless
+        // of how we got the text, so above should go in initialize
+
+        wrapTiles(context, xInitial, yInitial, maxWidth, maxHeight,lineHeight);
+        placeTiles(context);
+      //  console.log("printing TILES n DONE");
+      //  printTilesToLog();
+      //   // console.log("DONE page length: " + page_length );
+        console.log("DONE PAGE LOADED" );
+      }
+
+
+
+function getSelectedText(text_name){
     
+    console.log("in getSelectedText text_name is: " + text_name);
 // do the ajax get call to call display_page now
     $.ajax({
     // The URL for the request
@@ -203,56 +185,81 @@ function onChange(event) {
   // Code to run if the request succeeds (is done);
   // The response is passed to the function
     .done(function( data) {
-      console.log("word INDEX: in done " + current_word_index);
-      var current_text = document.getElementById(textSource).value;
-       console.log("text chosen: " + current_text);
-       alltext = data;
-       console.log(alltext.substr(0,100));
-        getWords(alltext);
-
-        wrapTiles(context, xInitial, yInitial, maxWidth, maxHeight,lineHeight);
-        placeTiles(context);
-      //  console.log("printing TILES n DONE");
-      //  printTilesToLog();
-      //   // console.log("DONE page length: " + page_length );
-        console.log("DONE PAGE LOADED" );
+        console.log("word INDEX: in done " + current_word_index);
+       
+        text = data;
+        console.log("Beginning of done text: " +text.substr(0,100));
+        console.log("In read Select text name: " + text_name);
+        getWords(text);
+        console.log("In ready Select third word: " + allWords[2]);
+        console.log("In ready Select current_word_index: " + current_word_index);
+        $(".gettext").hide();
+        $(".makepoem").show();
+        initalize();
+        displayVals();
+        
   })
 
-  // // Code to run if the request fails; the raw request and
-  // // status codes are passed to the function
-  .fail(function( xhr, status, errorThrown ) {
-    alert( "Sorry, there was a problem!" );
-    console.log( "Error: " + errorThrown );
-    console.log( "Status: " + status );
-    console.dir( xhr );
-  })
-  // Code to run regardless of success or failure;
-  .always(function( xhr, status ) {
-    console.log( "The request is complete!" );
-  });
+        // // Code to run if the request fails; the raw request and
+        // // status codes are passed to the function
+        .fail(function( xhr, status, errorThrown ) {
+          alert( "Sorry, there was a problem!" );
+          console.log( "Error: " + errorThrown );
+          console.log( "Status: " + status );
+          console.dir( xhr );
+        })
+        // Code to run regardless of success or failure;
+        .always(function( xhr, status ) {
+          console.log( "The request is complete!" );
+        });
 
-  }
+    }
+  
 
 // display a default page on load
  $( window ).on( "load", function() {
         console.log( "window loaded" );
+        $(".gettext").show();
         $(".makepoem").hide();
         // initalize();
         // displayVals(0);
     });
   
 
+//deal with uploading a user text file
+ // Callback from a <input type="file" onchange="onChange(event)">
+function onChange(event) {
+  var file = event.target.files[0];
+  var reader = new FileReader();
+  console.log('file uploading');
+  reader.onload = function(event) {
+    // The file's text will be printed here
+    var alltext = event.target.result;
+    console.log(alltext);
+    getWords(alltext);
+    console.log("In onChange Second word: " + allWords[1]);
+
+    current_word_index = 0;
+
+    $(".gettext").hide();
+    $(".makepoem").show();
+
+    initalize();
+     displayVals();
+  };
+  reader.readAsText(file);
+}
+
 //display new text from the beginning when selected
   $(document).ready(function(){
       $( "select" ).change(function(event){
         current_word_index = 0;
-        
         textSource = event.target.id;
         console.log("select changed, textSource is " + textSource);
-        $(".gettext").hide();
-        $(".makepoem").show();
-        initalize();
-        displayVals(current_word_index)
+        text_name = document.getElementById(textSource).value;
+       
+        getSelectedText(text_name);
+        
          });
   });
 
@@ -373,39 +380,19 @@ function onChange(event) {
 <!-- display canvas and next page buttons -->
 <div class="makepoem">
 <canvas id="mycanvas"></canvas>
-
- 
 <br/>
-  <!-- <div id="choosetext">
-
-  Choose existing text: 
-  <select class="selectpicker" id="dropdown">
-    <option value="tides">Time and Tide</option>
-    <option value="frank">Frankenstein</option>
-    <option value="dream">Dream Psychology</option>
-    <option value="music">Shakespeare & Music</option>
-    <option value="unix">Unix Programming </option>
-    <option value="alchemy">Story of Alchemy </option>
-    <option value="super">Astounding Stories</option>
-    
-  </select>  -->
-
-   
-<!-- <button id="randombutton" type="button">
-    random page
-  </button>
- -->
+<br/>
 <div id="controls">
-<button class="btn btn-primary btn-responsive" id="prevbutton" type="button">
-    prev page
+<button class="btn btn-primary btn-responsive btn-sm" id="prevbutton" type="button">
+    prev 
   </button>
 
-<button class="btn btn-primary btn-responsive" id="nextbutton" type="button">
-    next page
+<button class="btn btn-primary btn-responsive btn-sm" id="nextbutton" type="button">
+    next 
 </button>
 
-<button class="btn btn-primary btn-responsive" id="randbutton" type="button">
-    random page
+<button class="btn btn-primary btn-responsive btn-sm" id="randbutton" type="button">
+    random 
 </button>
 
 </div>

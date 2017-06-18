@@ -39,8 +39,8 @@ function clearTiles(){
  
 
 // turn text into an array of words
-function getWords(text){       
-  var allWordsNoBreaks =  text.replace(/\r?\n|\r/g, " ");
+function getWords(alltext){       
+  var allWordsNoBreaks =  alltext.replace(/\r?\n|\r/g, " ");
   allWords = allWordsNoBreaks.split(' ');
   }
 
@@ -84,7 +84,9 @@ function wrapTiles(context,  x, y, maxWidth,maxHeight, lineHeight) {
   // x and y pos of current tile top leftf corner
   var xPos = x;
   var yPos = y;
-  console.log("IN wrap tiles");
+  console.log("IN wrap tiles current word index " + current_word_index);
+  console.log("IN wrap tiles allword length " + allWords.length);
+  
   for (var n = current_word_index; n < allWords.length; n++) {
     // make a tile with the new word 
     var testTile = makeTile(context, (allWords[n] + ' '), xPos, yPos, lineHeight);
@@ -131,7 +133,7 @@ function wrapTiles(context,  x, y, maxWidth,maxHeight, lineHeight) {
   }
 }
 
-
+// fix n+1 visible - it's glitching and last word isn't clickable
 function adjustBlackout( context) {
   // console.log("adjusting blackout");
   for (var n = 0 ; n < tiles.length ; n++) {
