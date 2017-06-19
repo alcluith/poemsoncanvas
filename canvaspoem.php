@@ -9,6 +9,7 @@
   <link rel="stylesheet" type="text/css" href="./css/style.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script src="js/canvasops2.js"></script> 
+   <script src="js/canvas-scale.js"></script> 
 <!--   <script src="js/html2canvas.js"></script> -->
   <script>
   // index in word array of current page to display
@@ -40,7 +41,14 @@
 //   }
 // }
   function initalize(){
-    var canvas = document.getElementById('mycanvas');
+    // var canvas = document.getElementById('mycanvas');
+    var canvas = createHiDPICanvas();
+    canvas.id = "mycanvas";
+    var canvasdiv = document.getElementById("canvasholder");
+    canvasdiv.appendChild(canvas);
+
+
+
     var context = canvas.getContext('2d',{alpha: false});
     console.log("IN initialize");
     //standardize canvas sizes
@@ -97,16 +105,16 @@
         touch = e.changedTouches[0] // reference first touch point for this event
         var x = touch.clientX;
         var y = touch.clientY;
-        console.log("in touch START touchobj X" + x + "in touch End touchobj y " + y);
+        console.log("in touch START touchobj x: " + x + "in touch Start touchobj y: " + y);
         e.preventDefault();
-        wordTouchStart(leftOffset, x, y, e);
+        wordTouchStart(leftOffset, x, y);
     }, false);
 
     canvas.addEventListener('touchmove', function(e){
-        touchobj = e.changedTouches[0] // reference first touch point for this event
-        console.log("touchobj" + touchobj);
-        var touch = touchobj.clientX;
-        console.log("touchobj X" + touch);
+          // reference first touch point for this event
+        // console.log("touchobj" + touchobj);
+        // var touchx = touchobj.clientX;
+        console.log("touchobj X" + e.changedTouches[0].clientX);
         e.preventDefault();
         // wordSelectStart(leftOffset, e);
     }, false);
@@ -114,11 +122,12 @@
      canvas.addEventListener('touchend', function(e){
         touchobj = e.changedTouches[0] // reference first touch point for this event
         console.log("touchobj" + touchobj);
-        var x = touch.clientX;
-        var y = touch.clientY;
+        var x = touchobj.clientX;
+        var y = touchobj.clientY;
         console.log("in touch End touchobj X" + x + "in touch End touchobj y " + y);
         e.preventDefault();
-        wordTouchEnd(context, leftOffset,x, y, e);
+        // wordTouchEnd(context, leftOffset,x, y, e);
+        wordTouchEnd(context, leftOffset,x, y);
     }, false);
 
       
@@ -188,11 +197,11 @@ function getSelectedText(text_name){
         console.log("word INDEX: in done " + current_word_index);
        
         text = data;
-        console.log("Beginning of done text: " +text.substr(0,100));
-        console.log("In read Select text name: " + text_name);
+        // console.log("Beginning of done text: " +text.substr(0,100));
+        // console.log("In read Select text name: " + text_name);
         getWords(text);
-        console.log("In ready Select third word: " + allWords[2]);
-        console.log("In ready Select current_word_index: " + current_word_index);
+        // console.log("In ready Select third word: " + allWords[2]);
+        // console.log("In ready Select current_word_index: " + current_word_index);
         $(".gettext").hide();
         $(".makepoem").show();
         initalize();
@@ -379,7 +388,9 @@ function onChange(event) {
 
 <!-- display canvas and next page buttons -->
 <div class="makepoem">
-<canvas id="mycanvas"></canvas>
+<div id="canvasholder">
+</div>
+<!-- <canvas id="mycanvas"></canvas> -->
 <br/>
 <br/>
 <div id="controls">
