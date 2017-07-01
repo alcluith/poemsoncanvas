@@ -1,10 +1,48 @@
-//size canvas for device
 
-function getWords(text){       
-  var allWordsNoBreaks =  text.replace(/\r?\n|\r/g, " ");
-  allWords = allWordsNoBreaks.split(' ');
+function clearTiles(){
+  tiles = [];
+  // for (var i = 0; i< tiles.length; i++){
+
+  // }
+}
+
+//deal with uploading a user text file
+ function readSingleFile(evt) {
+    //Retrieve the first (and only!) File from the FileList object
+    var f = evt.target.files[0]; 
+
+    if (f) {
+      var r = new FileReader();
+      r.onload = function(e) { 
+        var contents = e.target.result;
+        alert( "Got the file.n" 
+              +"name: " + f.name + "n"
+              +"type: " + f.type + "n"
+              +"size: " + f.size + " bytesn"
+              + "starts with: " + contents.substr(10, contents.indexOf("n"))
+        );  
+      }
+     $(document).ready(function(){
+      text =contents;
+      console.log(text);
+      displayVals();
+    })
+
+    } else { 
+      alert("Failed to load file");
+    }
   }
 
+
+
+
+ 
+
+// turn text into an array of words
+function getWords(alltext){       
+  var allWordsNoBreaks =  alltext.replace(/\r?\n|\r/g, " ");
+  allWords = allWordsNoBreaks.split(' ');
+  }
 
 // make a tile containing a word
 function makeTile(context, newWord, leftX, topY, lineHeight) {
@@ -46,10 +84,13 @@ function wrapTiles(context,  x, y, maxWidth,maxHeight, lineHeight) {
   // x and y pos of current tile top leftf corner
   var xPos = x;
   var yPos = y;
+  console.log("IN wrap tiles current word index " + current_word_index);
+  console.log("IN wrap tiles allword length " + allWords.length);
+  
   for (var n = current_word_index; n < allWords.length; n++) {
     // make a tile with the new word 
     var testTile = makeTile(context, (allWords[n] + ' '), xPos, yPos, lineHeight);
-    // console.log("making tile" + n + testTile.word  + ' left ' + testTile.left + ' right ' + testTile.top + ' top ' + testTile.right + ' bottom' + testTile.bottom + ' ' + '\n');
+     // console.log("MADE tile to wrap" + n + testTile.word  + ' left ' + testTile.left + ' right ' + testTile.right + ' top ' + testTile.top + ' bottom' + testTile.bottom + ' ' + '\n');
     //if tileN.right is further over than max width
     if (testTile.right > maxWidth && n > 0) {
       //check word isn't ridiculously long and takes up more than a line
@@ -92,13 +133,13 @@ function wrapTiles(context,  x, y, maxWidth,maxHeight, lineHeight) {
   }
 }
 
-
+// fix n+1 visible - it's glitching and last word isn't clickable
 function adjustBlackout( context) {
-  console.log("adjusting blackout");
+  // console.log("adjusting blackout");
   for (var n = 0 ; n < tiles.length ; n++) {
 
     if (!tiles[n].visible) {
-      console.log("adjusting invisible tile: " + n);
+      // console.log("adjusting invisible tile: " + n);
       if (tiles[n + 1].visible) {
         // retract the blackout tile to teh left slightly
         context.fillStyle = 'white';
@@ -129,12 +170,6 @@ function adjustBlackout( context) {
 
 }
 
-function clearTiles(){
-  tiles = [];
-  // for (var i = 0; i< tiles.length; i++){
-
-  // }
-}
 // toggle tiles between blacked-out and visible
 function toggleTile(context, n) {
   if (tiles[n].visible == true) {
@@ -200,7 +235,7 @@ function printTilesToLog(){
 
 // toggle tiles between blacked-out and visible
 function toggleTile(context, n) {
-  console.log("toggling tile " + n);
+  // console.log("toggling tile " + n);
   if (tiles[n].visible == true) {
     // blackout tile
     tiles[n].visible = false;
@@ -229,7 +264,7 @@ function findTile(x, y, leftOffset) {
   var i = 0;
   var adjY = y - 30;
   var adjX = x - leftOffset;
-  // console.log("FIND tile left offset = " + leftOffset);
+   console.log("FIND tile left offset = " + leftOffset);
   var found = false;
   //while we've not run out of tiles, aren't right at the bottom
   //of the canvas where there are no tiles and haven't found
@@ -259,27 +294,96 @@ function findTile(x, y, leftOffset) {
 // Event Handlers
 ///////////////////
 
+// Fix for diff browsers by Martin Rinehart
+function fixupMouse(event) {
+    event = event || window.event;
+    var e = { event: event,
+        target: event.target ? event.target : event.srcElement,
+        which: event.which ? event.which :
+            event.button === 1 ? 1 :
+            event.button === 2 ? 3 : 
+            event.button === 4 ? 2 : 1,
+        x: event.x ? event.x : event.clientX,
+        y: event.y ? event.y : event.clientY
+    };
+    console.log("fixupMouse event.x " + e.x);
+    return e;
+}
 
-function wordSelectStart( leftOffset, event) {
-  var tileNum = findTile(event.pageX, event.pageY, leftOffset);
-  console.log("in MOUSEDOWN, tilenum: " + tileNum + ' ' + 'eventx:'  + event.pageX + ' ' + 'eventy:'  + event.pageY );
+function wordSelectStart(leftOffset,  event) {
+ 
+  e = fixupMouse(event);
+  
+  var tileNum = findTile(e.x, e.y, leftOffset);
+
+   console.log("in MOUSEDOWN, tilenum: " + tileNum + ' ' + 'eventx:'  + e.x + ' ' + 'eventy:'  + e.y );
   if (tileNum != -1){
-  console.log("in wordSelectSTART, word: " + tiles[tileNum].word + ' ' + 'word left:'  + tiles[tileNum].left + ' ' + 'tile right:'  + tiles[tileNum].right );
+  console.log("in wordSelectSTART, word: " + tiles[tileNum].word + ' ' + 'word left:'  + tiles[tileNum].left + ' ' + 'tile right:'  + tiles[tileNum].right + ' ' + 'tile bottom:'  + tiles[tileNum].bottom);
   }
-  printTilesToLog();
+  // printTilesToLog();
+  dragstart = tileNum;
+  dragging = true;
+
+}
+
+
+function wordTouchStart(leftOffset, x, y) {
+ 
+  // e = fixupMouse(event);
+  
+  var tileNum = findTile(x, y, leftOffset);
+
+   console.log("in Touch Start, tilenum: " + tileNum + ' ' + 'eventx:'  + x + ' ' + 'eventy:'  + y );
+  if (tileNum != -1){
+  console.log("in word Touch START, word: " + tiles[tileNum].word);
+  }
+  // printTilesToLog();
   dragstart = tileNum;
   dragging = true;
 
 }
 
 // problem with tiles is here
-function wordSelectEnd( context, leftOffset) {
-  console.log("in MOUSEUP, coords: " + event.pageX + " " + event.pageY);
-  // console.log("printing tiles");
+function wordSelectEnd(context, leftOffset,event) {
+ 
+  // console.log("end touch x : " + event.changedTouches[0].pageX);
+  e = fixupMouse(event);
+  // changedTouches[0].pageX
   printTilesToLog();
-  var tileNum = findTile(event.pageX, event.pageY, leftOffset);
-  console.log("in mouseup tile: " + tileNum);
-  console.log("in mouseup DRAGGINg is: " + dragging + " dragstart is:" + dragstart);
+  var tileNum = findTile(e.x, e.y, leftOffset);
+  console.log("in MOUSEUP, tilenum: " + tileNum + ' ' + 'eventx:'  + e.x + ' ' + 'eventy:'  + e.y );
+  
+  console.log("in mouseup DRAGGINg is: " + dragging + " dragstart is:" + dragstart+ " leftOffset is:" + leftOffset);
+  if (dragging) {
+    // console.log("in mouseup if dragging  ");
+    if (tileNum != -1) {
+      // console.log("in mouseup about to do for loop  ");
+      for (i = dragstart; i <= tileNum; i++) {
+        // console.log("in mouseup about to toggle tile: " + i);
+        toggleTile(context, i);
+      //add another loop to adjust these tiles here
+
+      }
+      adjustBlackout(context, dragstart, tileNum);
+      dragging = false;
+
+    }
+
+  }
+ 
+}
+
+function wordTouchEnd(context, leftOffset,x, y) {
+ 
+  // console.log("end touch x : " + event.changedTouches[0].pageX);
+   // e = fixupMouse(event);
+  // changedTouches[0].pageX
+  // printTilesToLog();
+  var tileNum = findTile(x, y, leftOffset);
+  console.log("in Touch End, tilenum: " + tileNum + ' ' + 'event x: '  + x + ' ' + 'event y: '  + y );
+  console.log("in wordTouch END, word: " + tiles[tileNum].word);
+  
+  console.log("in Touch End DRAGGINg is: " + dragging + " dragstart is:" + dragstart+ " leftOffset is:" + leftOffset);
   if (dragging) {
     // console.log("in mouseup if dragging  ");
     if (tileNum != -1) {
@@ -301,9 +405,9 @@ function wordSelectEnd( context, leftOffset) {
 
 
 
-
 function mouseClickEvent(e) {
   // alert("click event");
+  e.preventDefault();
   mouseClick = true;
   if (e.offsetX) {
     mouseX = e.offsetX;
