@@ -27,6 +27,7 @@
   var topOffset = 0;
   var textSource = "";
   var fileSource = "";
+  var tileColor = "#e6add8";
 
 
   // var canvas = document.getElementById('mycanvas');
@@ -42,33 +43,16 @@
 // }
 
 
-  function createNormalCanvas(){
-
-  }
-
-  function createHDefCanvas(){
-
-  }
-
+  
 
   function initalize(){
-    // var canvas = document.getElementById('mycanvas');
-    
-
-    
     console.log("IN initialize");
     //standardize canvas sizes
-
-    // canvas.width = canvas.width;
-      //is the user blacking out more than one word
-      // set margin-top here for top offset
     if (window.innerWidth < 480) {
       var width =Math.floor(window.innerWidth *96/100 );;
       var height = Math.floor(window.innerHeight * 80/100);
       console.log("small inner Height : " + window.innerHeight );
-      
-     //
-       var canvas = createHiDPICanvas(width, height,PIXEL_RATIO );
+      var canvas = createHiDPICanvas(width, height,PIXEL_RATIO );
       console.log("Small Canvas Height : " + canvas.height );
       console.log("Small Canvas Width : " + canvas.width );
       
@@ -82,16 +66,13 @@
       console.log("Small Canvas maxHeight : " + maxHeight );
       console.log("Small Canvas maxWidth : " + maxWidth );
       leftOffset = 15;
-      topOffset = 30;
-        document.getElementById('mycanvas').style.marginLeft = leftOffset;
+      topOffset = 10;
+      document.getElementById('mycanvas').style.marginLeft = leftOffset;
         // document.getElementById('mycanvas').style.margin-top = topOffset;
       console.log("maxHeight: " + maxHeight + "  maxWidth: " + maxWidth);
-      context.font = '14px Georgia';
+      context.font = '16px Georgia';
       } 
-     //  console.log("maxHeight small: " + maxHeight + "maxWidth: " + maxWidth);
-     //  context.fillStyle = 'blue';
-     // context.fillRect(0,0,canvas.width,canvas.height );
-      // } 
+      
     else if (window.innerWidth < 768) {
         if (Math.floor(window.innerHeight* 75 / 100)< window.innerWidth){
           var width = Math.floor(window.innerHeight* 75 / 100);
@@ -108,16 +89,13 @@
       var canvasdiv = document.getElementById("canvasholder");
       canvasdiv.appendChild(canvas);
       var context = canvas.getContext('2d',{alpha: false});
-      // console.log("Pixel ratio : " +  );
-
-
+      
       console.log('width med' + canvas.width);
       console.log('height med' + canvas.height);
       maxWidth = Math.floor(canvas.width * 95 / 100);
       maxHeight = Math.floor(canvas.height * 95 / 100);
       leftOffset = (window.innerWidth - canvas.width)/2;
       topOffset = 30;
-      // console.log("LEFT Offset " + leftOffset);
        document.getElementById('mycanvas').style.marginLeft = leftOffset;
       console.log("maxHeight: " + maxHeight + "  maxWidth: " + maxWidth);
       context.font = '18px Georgia';
@@ -130,53 +108,46 @@
           var width = Math.floor(window.innerWidth* 95 / 100);
         }
         console.log("Big inner Height : " + window.innerHeight );
-      var height = Math.floor(window.innerHeight* 75 / 100);
+      var height = Math.floor(window.innerHeight* 80 / 100);
       console.log("Big Height : " + height );
-
       var canvas = createHiDPICanvas(width, height,PIXEL_RATIO );
       console.log(" Big Canvas Height : " + canvas.height );
       canvas.id = "mycanvas";
       var canvasdiv = document.getElementById("canvasholder");
       canvasdiv.appendChild(canvas);
       var context = canvas.getContext('2d',{alpha: false});
-      // console.log("Pixel ratio : " +  );
-
-
-      // console.log('width med' + canvas.width);
-      // console.log('height med' + canvas.height);
       maxWidth = Math.floor(canvas.width * 95 / 100);
-      maxHeight = Math.floor(canvas.height * 95 / 100);
+      maxHeight = Math.floor(height * 95 / 100);
       leftOffset = (window.innerWidth - canvas.width)/2;
       topOffset = 30;
-      // console.log("LEFT Offset " + leftOffset);
-       document.getElementById('mycanvas').style.marginLeft = leftOffset;
-      console.log("maxHeight med: " + maxHeight + "maxWidth: " + maxWidth);
-
+      document.getElementById('mycanvas').style.marginLeft = leftOffset;
+      console.log("maxHeight big " + maxHeight + "maxWidth big: " + maxWidth);
       context.font = '18px Georgia';
       }
-
     canvas.addEventListener("click", mouseClickEvent, false);
     canvas.addEventListener('mousedown', wordSelectStart.bind(null, leftOffset), false);
     canvas.addEventListener('mouseup', wordSelectEnd.bind(null, context, leftOffset), false);
     canvas.addEventListener('touchstart', function(e){
+       e.preventDefault();
         touch = e.changedTouches[0] // reference first touch point for this event
         var x = touch.clientX;
         var y = touch.clientY;
         console.log("in touch START touchobj x: " + x + "in touch Start touchobj y: " + y);
-        e.preventDefault();
+       
         wordTouchStart(leftOffset, x, y);
     }, false);
 
     canvas.addEventListener('touchmove', function(e){
+          e.preventDefault();
           // reference first touch point for this event
         // console.log("touchobj" + touchobj);
         // var touchx = touchobj.clientX;
         console.log("touchobj X" + e.changedTouches[0].clientX);
-        e.preventDefault();
+    
         // wordSelectStart(leftOffset, e);
     }, false);
-    
      canvas.addEventListener('touchend', function(e){
+      e.preventDefault();
         touchobj = e.changedTouches[0] // reference first touch point for this event
         console.log("touchobj" + touchobj);
         var x = touchobj.clientX;
@@ -186,7 +157,6 @@
         // wordTouchEnd(context, leftOffset,x, y, e);
         wordTouchEnd(context, leftOffset,x, y);
     }, false);
-
       
   }
 
@@ -204,6 +174,7 @@
     var context = canvas.getContext('2d',{alpha: false});
     //get rid of any previous stuff on the canvas when moving page (hopefully)
     context.clearRect(0,0, canvas.width, canvas.height);
+    // context.fillStyle = '#add8e6';
     context.fillStyle = 'white';
     context.fillRect(0,0,canvas.width,canvas.height );
     context.fillStyle = 'black';
@@ -221,7 +192,7 @@
      //This is the bit we need to call every time, regardless
         // of how we got the text, so above should go in initialize
 
-        wrapTiles(context, xInitial, yInitial, maxWidth, maxHeight,lineHeight);
+        wrapTiles(context, xInitial, yInitial, lineHeight);
         placeTiles(context);
       //  console.log("printing TILES n DONE");
       //  printTilesToLog();
@@ -374,19 +345,37 @@ function onChange(event) {
 <!-- first "page", get the user's selected text  -->
 <div class="gettext">
   <center>
+  <div class="header-image">
+    
+    <img src="img/poemsheader.jpg" class="img-responsive">
+    
+</div>
 
     <div class="row justify-content-center" id="fiction">
-      <div class="col justify-content-center ">
+      <div class="col justify-content-center container-fluid">
         <br/>
+        <p>
+        Make poems from longer texts by choosing which words to show and which to hide. 
+        </p> 
+        <p>Click a word to hide, click again to reveal.  
+        Drag a longer piece of text to hide, drag again to reveal.</p>
+        <p>
         Choose a text from <em>one</em> of the following:
-        <br/>
+        
+        </p>
         Fiction: 
       </div>
-      <div class="col ">
+      <div class="col justify-content-center">
         <select class="selectpicker" id="ddfic" >
         <option value ="instruction" selected > -- Please select --</option>
           <option value="frank">Frankenstein</option>
           <option value="super">Astounding Stories</option>
+          <option value="dracula">Dracula</option>
+          <option value="alice">Alice in Wonderland</option>
+          <option value="moby">Moby Dick</option>
+          <option value="pride">Pride and Prejudice</option>
+          <option value="sherlock">Sherlock Holmes</option>
+          
         </select> 
         <br/>
         <br/>
@@ -405,6 +394,7 @@ function onChange(event) {
           <option value="music">Shakespeare & Music</option>
           <option value="unix">Unix Programming </option>
           <option value="alchemy">Story of Alchemy </option>
+          <option value="airplane">History of the Airplane</option>
         </select> 
         <br/>
         <br/>
@@ -419,8 +409,14 @@ function onChange(event) {
     <div class="col">
       <select class="selectpicker" id="ddpol">
        <option value ="instruction" selected > -- Please select --</option>
-        <option value="dream">Dream Psychology</option>
-        <option value="super">Astounding Stories</option>
+        <option value="con17">Conservative Manifesto 17</option>
+        <option value="lab17">Labour Manifesto 17</option>
+        <option value="lib17">Lib Dem Manifesto 17</option>
+        <option value="snp17">SNP Manifesto 17</option>
+        <option value="trumpin">Trump: Inauguration Speech</option>
+        <option value="trumpcong">Trump: Speech to Congress</option>
+        <option value="trumpcpac">Trump: CPAC Speech</option>
+        <option value="trumphealth">Trump: Rep. Health Bill</option>
       </select> 
       <br/>
       <br/>
@@ -448,8 +444,7 @@ function onChange(event) {
 <div id="canvasholder">
 </div>
 <!-- <canvas id="mycanvas"></canvas> -->
-<br/>
-<br/>
+
 <div id="controls">
 <button class="btn btn-primary btn-responsive btn-sm" id="prevbutton" type="button">
     prev 

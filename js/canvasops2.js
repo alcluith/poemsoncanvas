@@ -6,7 +6,7 @@ function clearTiles(){
   // }
 }
 
-//deal with uploading a user text file
+//deal with uploading a user text fifille
  function readSingleFile(evt) {
     //Retrieve the first (and only!) File from the FileList object
     var f = evt.target.files[0]; 
@@ -34,7 +34,17 @@ function clearTiles(){
   }
 
 
-
+function toggleTileColor(){
+   // if pink
+  if (tileColor == '#e6add8') {
+    // make it green
+    tileColor = '#d8e6ad';
+  }
+  else{
+    // it's green, so make it pink
+    tileColor = '#e6add8';
+  }
+}
 
  
 
@@ -44,8 +54,18 @@ function getWords(alltext){
   allWords = allWordsNoBreaks.split(' ');
   }
 
+//returns a string containing numSpaces spaces
+function makeSpace(numSpaces){
+var newSpace = ' ';
+for(var i = 1; i< numSpaces; i++){
+    newSpace = newSpace + ' ';
+  }
+return newSpace;
+}
+
 // make a tile containing a word
-function makeTile(context, newWord, leftX, topY, lineHeight) {
+function makeTile(context, newWord, leftX, topY, lineHeight, spaces) {
+  newWord = newWord + makeSpace(spaces)
   newTile = {
     word: newWord,
     left: Math.ceil(leftX),
@@ -54,10 +74,82 @@ function makeTile(context, newWord, leftX, topY, lineHeight) {
     bottom: topY + lineHeight,
     visible: true
   }
-  // console.log("MADE tile"  + ' word: ' + newTile.word  + ' left: ' + newTile.left + ' right: ' + newTile.top + ' top: ' + newTile.right + ' bottom: ' + newTile.bottom + ' ' + '\n');
+  // console.log("MADE tile"  + ' word: ' + newTile.word  + '!! left: ' + newTile.left + ' right: ' + newTile.right + '\n');
     
   return newTile;
 }
+
+
+
+function justifyLastWord(currentLineEnd,context){
+  var lastWord = tiles[currentLineEnd].word;
+  var wordLength = context.measureText(lastWord).width;
+  console.log("lastword LENGTH " + wordLength);
+  tiles[currentLineEnd].word = lastWord.substr(0,lastWord.length - 1);
+  tiles[currentLineEnd].right = maxWidth;
+  tiles[currentLineEnd].left = maxWidth - wordLength;
+  
+}
+
+
+function addASpaceToLineWords(context,currentLineStart, currentLineEnd, spacesToAdd,lineHeight){
+  var lastWord = tiles[currentLineEnd].word
+  console.log("last word in addASpaceToLineWords: " + lastWord);
+  
+  var numWords = currentLineEnd - currentLineStart +1;
+  var spacewidth = context.measureText(' ').width;
+ // console.log("spacewidth: " + spacewidth);
+  console.log("numwords: " + numWords);
+  console.log("spacesToAdd in addASpaceToLineWords " + spacesToAdd);
+  // how many space to add to every word on line
+  var mainSpaces = Math.floor(spacesToAdd / numWords);
+  console.log("mainspaces " + mainSpaces);
+  // any left over spaces
+  var overSpaces = spacesToAdd  % numWords;
+ console.log(" overSpaces" + overSpaces);
+ var leftX = tiles[currentLineStart].left;
+ var topY = tiles[currentLineStart].top;
+  // add main allocation of spaces to every word
+  var spacesUsed = 0;
+   var allSpaces = 0;
+   for (var i = currentLineStart ; i < currentLineEnd + 1; i++){
+      if (spacesUsed < overSpaces){
+        allSpaces = mainSpaces + 2;
+      }
+      else{
+        allSpaces = mainSpaces + 1;
+      }
+      console.log ("for " + i + "allSpaces is " + allSpaces);
+      tiles[i] = makeTile(context, tiles[i].word.substr(0,tiles[i].word.length - 1), leftX, topY, lineHeight, allSpaces);
+      var leftX = tiles[i].right;
+      console.log("remaking tile " + i + "word:  " + tiles[i].word);
+      spacesUsed += 1;
+    
+   } 
+
+  
+}
+
+function justifyLine(context,  currentLineStart, currentLineEnd,lineHeight){
+
+  //take space off last word
+  console.log("in JUSTIFY LINE last word is: " +  tiles[currentLineEnd].word);
+  //work out how many spaces to maxWidth from right of LineEnd tile and add one
+  var extraSpaces = Math.floor(((maxWidth - tiles[currentLineEnd].right) + 1)/context.measureText(' ').width);
+  //context.measureText(' ');
+  console.log("in justifyLine, extra Spaces to add: " + Math.floor(extraSpaces/context.measureText(' ').width));
+ // console.log("spacewidth: " + context.measureText(' ') );
+  
+  // put the last word in teh line in the right place, i.e. right at the right hand edge
+   justifyLastWord(currentLineEnd, context);
+   console.log("justifying last word:" + tiles[currentLineEnd].word + 'left ' + tiles[currentLineEnd].left);
+  //first and last words are in the right place, now distribute extra spaces
+  addASpaceToLineWords(context,currentLineStart, currentLineEnd-1 , extraSpaces,lineHeight);
+
+}
+
+
+
 
 //place tile on canvas
 function placeTiles(context) {
@@ -68,42 +160,54 @@ function placeTiles(context) {
     context.textBaseline = "top";
     context.fillStyle = '#000';
     context.fillText(tiles[i].word, tiles[i].left, tiles[i].top);
+     // console.log('placing: ' + tiles[i].word + '!');
   }
 }
 
 // add index of start of page - this should allow for differing sizes
 // of pages to be displayed, just set current_page_pointer to word after
 //last one displayed
-// arrange the text in the array tiles so that it will fit on the canvas
-//USE TILE INDE HERE?
-function wrapTiles(context,  x, y, maxWidth,maxHeight, lineHeight) {
+function wrapTiles(context,  x, y,  lineHeight) {
   // var words = text.split(' ');
   // position of current word in array of tiles
-  // console.log("in WRAPTILES,  current_word_index is " + current_word_index);
+   console.log("in WRAPTILES,  MAXHEIGHT is!!! " + maxHeight);
    var tileIndex = 0;
   // x and y pos of current tile top leftf corner
   var xPos = x;
   var yPos = y;
   console.log("IN wrap tiles current word index " + current_word_index);
   console.log("IN wrap tiles allword length " + allWords.length);
+  // tile that starts current line in wrapped text
+  var currentLineStart= 0;
+  // tile that ends current line in wrapped text
+  var currentLineEnd= 0;
+  
   
   for (var n = current_word_index; n < allWords.length; n++) {
     // make a tile with the new word 
-    var testTile = makeTile(context, (allWords[n] + ' '), xPos, yPos, lineHeight);
-     // console.log("MADE tile to wrap" + n + testTile.word  + ' left ' + testTile.left + ' right ' + testTile.right + ' top ' + testTile.top + ' bottom' + testTile.bottom + ' ' + '\n');
+    var testTile = makeTile(context, (allWords[n]), xPos, yPos, lineHeight, 1);
+      // console.log("MADE tile to wrap" + n + testTile.word  + '! left ' + testTile.left + ' right ' + testTile.right + ' top ' + testTile.top + ' bottom' + testTile.bottom + ' ' + '\n');
     //if tileN.right is further over than max width
     if (testTile.right > maxWidth && n > 0) {
       //check word isn't ridiculously long and takes up more than a line
       if (testTile.right - testTile.left > maxWidth) {
         console.log("Error, word too long:" + testTile.word);
-      } else {
+        } 
+      else {
         //move down a line and move x pointer back to start of line
         //change so that we check lineHeight isn't outside canvas
         // break out of loop if it is
+       console.log("calling justifyLine,Start = " + currentLineStart + "end: " + currentLineEnd - 1);
+       
+        //adjust spacing of words on current line
+         justifyLine(context, currentLineStart, currentLineEnd -1, lineHeight );
+        //move down a line and move x pointer back to start of line
+       
         yPos += lineHeight;
+        console.log("NEW yPOS = " + yPos);
         // console.log("INCR ypos now equals: " + yPos);
-        if (yPos > maxHeight){
-          current_word_index = n;
+        if (yPos + lineHeight > maxHeight){
+          current_word_index = n -1;
            if (page_length == 0 && current_word_index > 0) {
             page_length = current_word_index;
             num_pages = Math.ceil(allWords.length / page_length);
@@ -112,11 +216,13 @@ function wrapTiles(context,  x, y, maxWidth,maxHeight, lineHeight) {
           // console.log("TOO BIG: ypos now equals: " + yPos);
             // console.log("WRAPPED word INDEX: " + current_word_index);
             // console.log("WRAPPED page length: " + page_length );
+           console.log("ABOUT TO BREAK FROM WRaptiles");
           break;
         }
-        xPos = x;
 
-        tile = makeTile(context, (allWords[n] + ' '), xPos, yPos, lineHeight);
+        xPos = x;
+        currentLineStart = tileIndex;
+        tile = makeTile(context, (allWords[n]), xPos, yPos, lineHeight, 1);
         tiles[tileIndex] = tile;
         xPos = tile.right;
         tileIndex += 1;
@@ -129,6 +235,7 @@ function wrapTiles(context,  x, y, maxWidth,maxHeight, lineHeight) {
       tileIndex += 1;
       // move x pointer along
       xPos = tile.right;
+      currentLineEnd = tileIndex;
     }
   }
 }
@@ -418,10 +525,3 @@ function mouseClickEvent(e) {
   }
 }
 
-
-// console.log("space width is: " + (context.measureText(" ")).width);
-// wrapTiles(context, text, x, y, maxWidth, lineHeight);
-// placeTiles(context);
-// context.fillStyle = '#000';
-// console.log("tiles[1]" + tiles[1].word + tiles[1].top);
-// console.log(tiles.length);
