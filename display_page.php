@@ -63,7 +63,7 @@ elseif ($current_text == "cons17"){
 elseif ($current_text == "lib17"){
      $text_file = "./Texts/Politics/LibDemManifesto2017.txt";
   }
-  elseif ($current_text == "snp"){
+  elseif ($current_text == "snp17"){
      $text_file = "./Texts/Politics/SNPManifesto2017.txt";
   }
 elseif ($current_text == "trumpcong"){
@@ -75,7 +75,7 @@ elseif ($current_text == "trumpcong"){
   elseif ($current_text == "trumpcpac"){
      $text_file = "./Texts/Politics/TrumpTranscriptCPACSpeech.txt";
   }
-elseif ($current_text == "trumpcpac"){
+elseif ($current_text == "trumphealth"){
      $text_file = "./Texts/Politics/TrumpTranscriptRepublicanHealthBill.txt";
   }
   else{
