@@ -50,7 +50,7 @@
     //standardize canvas sizes
     if (window.innerWidth < 480) {
       var width =Math.floor(window.innerWidth *96/100 );;
-      var height = Math.floor(window.innerHeight * 80/100);
+      var height = Math.floor(window.innerHeight * 75/100);
       console.log("small inner Height : " + window.innerHeight );
       var canvas = createHiDPICanvas(width, height,PIXEL_RATIO );
       console.log("Small Canvas Height : " + canvas.height );
@@ -61,11 +61,11 @@
       canvasdiv.appendChild(canvas);
        var context = canvas.getContext('2d',{alpha: false});
       context.font = '16px Georgia';
-      maxWidth = (canvas.width * 96 / 100)/PIXEL_RATIO;
-      maxHeight = (canvas.height * 96 / 100)/PIXEL_RATIO;;
+      maxWidth = (canvas.width * 90 / 100)/PIXEL_RATIO;
+      maxHeight = (canvas.height * 90 / 100)/PIXEL_RATIO;;
       console.log("Small Canvas maxHeight : " + maxHeight );
       console.log("Small Canvas maxWidth : " + maxWidth );
-      leftOffset = 15;
+      leftOffset = 10;
       topOffset = 10;
       document.getElementById('mycanvas').style.marginLeft = leftOffset;
         // document.getElementById('mycanvas').style.margin-top = topOffset;
@@ -258,10 +258,14 @@ function getSelectedText(text_name){
         console.log( "window loaded" );
         $(".gettext").show();
         $(".makepoem").hide();
+
         // initalize();
         // displayVals(0);
     });
-  
+ 
+ $(document).ready(function(){
+    $(window).scrollTop(0);
+}); 
 
 //deal with uploading a user text file
  // Callback from a <input type="file" onchange="onChange(event)">
@@ -321,16 +325,26 @@ function onChange(event) {
             displayVals();
             }
           }
-        else if(this.id == 'randbutton'){
+        else if(this.id == 'randbutton'){//rand button
             current_word_index = Math.floor(Math.random() * allWords.length);
             current_page = Math.floor(current_word_index / page_length);
             displayVals();
         }
-        else { //next button
+        else if(this.id == 'nextbutton'){ //next button
           current_word_index = current_word_index +1;
           current_page += 1;
           displayVals();
     }
+        else { //home
+            // $('#ddfic').val('instruction');
+            // $('#ddnfic').val('instruction');
+            // $('#ddpol').val('instruction');
+            // $(".gettext").show();
+            
+            // $(".makepoem").hide();
+            location.reload();
+
+        }
 
    });
   });
@@ -409,7 +423,7 @@ function onChange(event) {
     <div class="col">
       <select class="selectpicker" id="ddpol">
        <option value ="instruction" selected > -- Please select --</option>
-        <option value="con17">Conservative Manifesto 17</option>
+        <option value="cons17">Conservative Manifesto 17</option>
         <option value="lab17">Labour Manifesto 17</option>
         <option value="lib17">Lib Dem Manifesto 17</option>
         <option value="snp17">SNP Manifesto 17</option>
@@ -441,24 +455,34 @@ function onChange(event) {
 
 <!-- display canvas and next page buttons -->
 <div class="makepoem">
-<div id="canvasholder">
-</div>
+  <div id="canvasholder">
+  </div>
 <!-- <canvas id="mycanvas"></canvas> -->
 
-<div id="controls">
-<button class="btn btn-primary btn-responsive btn-sm" id="prevbutton" type="button">
-    prev 
-  </button>
+  <div id="controls">
 
-<button class="btn btn-primary btn-responsive btn-sm" id="nextbutton" type="button">
-    next 
-</button>
+   
 
-<button class="btn btn-primary btn-responsive btn-sm" id="randbutton" type="button">
-    random 
-</button>
+    <button class="btn btn-primary btn-responsive btn-sm" id="prevbutton" type="button">
+        prev 
+      </button>
 
-</div>
+    <button class="btn btn-primary btn-responsive btn-sm" id="nextbutton" type="button">
+        next 
+    </button>
+
+    <button class="btn btn-primary btn-responsive btn-sm" id="randbutton" type="button">
+        random 
+    </button>
+
+
+<br/>
+
+     <button class="btn btn-primary btn-responsive btn-sm" id="homebutton" type="button">
+        home
+      </button>
+
+  </div>
 
 </div> <!-- end makepoem "page" -->
 

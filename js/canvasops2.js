@@ -34,17 +34,17 @@ function clearTiles(){
   }
 
 
-function toggleTileColor(){
-   // if pink
-  if (tileColor == '#e6add8') {
-    // make it green
-    tileColor = '#d8e6ad';
-  }
-  else{
-    // it's green, so make it pink
-    tileColor = '#e6add8';
-  }
-}
+// function toggleTileColor(){
+//    // if pink
+//   if (tileColor == '#e6add8') {
+//     // make it green
+//     tileColor = '#d8e6ad';
+//   }
+//   else{
+//     // it's green, so make it pink
+//     tileColor = '#e6add8';
+//   }
+// }
 
  
 
@@ -64,7 +64,7 @@ return newSpace;
 }
 
 // make a tile containing a word
-function makeTile(context, newWord, leftX, topY, lineHeight, spaces) {
+function makeTile(context, newWord, leftX, topY, lineHeight,lineNum, spaces) {
   newWord = newWord + makeSpace(spaces)
   newTile = {
     word: newWord,
@@ -72,6 +72,7 @@ function makeTile(context, newWord, leftX, topY, lineHeight, spaces) {
     top: topY,
     right: Math.ceil(leftX + (context.measureText(newWord)).width),
     bottom: topY + lineHeight,
+    linenum: lineNum,
     visible: true
   }
   // console.log("MADE tile"  + ' word: ' + newTile.word  + '!! left: ' + newTile.left + ' right: ' + newTile.right + '\n');
@@ -95,7 +96,7 @@ function justifyLastWord(currentLineEnd,context){
 function addASpaceToLineWords(context,currentLineStart, currentLineEnd, spacesToAdd,lineHeight){
   var lastWord = tiles[currentLineEnd].word
   console.log("last word in addASpaceToLineWords: " + lastWord);
-  
+  var lineNum = tiles[currentLineStart].linenum;
   var numWords = currentLineEnd - currentLineStart +1;
   var spacewidth = context.measureText(' ').width;
  // console.log("spacewidth: " + spacewidth);
@@ -120,7 +121,7 @@ function addASpaceToLineWords(context,currentLineStart, currentLineEnd, spacesTo
         allSpaces = mainSpaces + 1;
       }
       console.log ("for " + i + "allSpaces is " + allSpaces);
-      tiles[i] = makeTile(context, tiles[i].word.substr(0,tiles[i].word.length - 1), leftX, topY, lineHeight, allSpaces);
+      tiles[i] = makeTile(context, tiles[i].word.substr(0,tiles[i].word.length - 1), leftX, topY, lineHeight,lineNum, allSpaces);
       var leftX = tiles[i].right;
       console.log("remaking tile " + i + "word:  " + tiles[i].word);
       spacesUsed += 1;
@@ -175,6 +176,7 @@ function wrapTiles(context,  x, y,  lineHeight) {
   // x and y pos of current tile top leftf corner
   var xPos = x;
   var yPos = y;
+  var lineNum = 1;
   console.log("IN wrap tiles current word index " + current_word_index);
   console.log("IN wrap tiles allword length " + allWords.length);
   // tile that starts current line in wrapped text
@@ -185,7 +187,7 @@ function wrapTiles(context,  x, y,  lineHeight) {
   
   for (var n = current_word_index; n < allWords.length; n++) {
     // make a tile with the new word 
-    var testTile = makeTile(context, (allWords[n]), xPos, yPos, lineHeight, 1);
+    var testTile = makeTile(context, (allWords[n]), xPos, yPos, lineHeight,lineNum, 1);
       // console.log("MADE tile to wrap" + n + testTile.word  + '! left ' + testTile.left + ' right ' + testTile.right + ' top ' + testTile.top + ' bottom' + testTile.bottom + ' ' + '\n');
     //if tileN.right is further over than max width
     if (testTile.right > maxWidth && n > 0) {
@@ -204,9 +206,10 @@ function wrapTiles(context,  x, y,  lineHeight) {
         //move down a line and move x pointer back to start of line
        
         yPos += lineHeight;
+        lineNum += 1;
         console.log("NEW yPOS = " + yPos);
         // console.log("INCR ypos now equals: " + yPos);
-        if (yPos + lineHeight > maxHeight){
+        if (yPos  > maxHeight){
           current_word_index = n -1;
            if (page_length == 0 && current_word_index > 0) {
             page_length = current_word_index;
@@ -222,7 +225,7 @@ function wrapTiles(context,  x, y,  lineHeight) {
 
         xPos = x;
         currentLineStart = tileIndex;
-        tile = makeTile(context, (allWords[n]), xPos, yPos, lineHeight, 1);
+        tile = makeTile(context, (allWords[n]), xPos, yPos, lineHeight,lineNum, 1);
         tiles[tileIndex] = tile;
         xPos = tile.right;
         tileIndex += 1;
@@ -243,11 +246,11 @@ function wrapTiles(context,  x, y,  lineHeight) {
 // fix n+1 visible - it's glitching and last word isn't clickable
 function adjustBlackout( context) {
   // console.log("adjusting blackout");
-  for (var n = 0 ; n < tiles.length ; n++) {
+  for (var n = 0 ; n < tiles.length - 1 ; n++) {
 
-    if (!tiles[n].visible) {
+    if ((!tiles[n].visible) ){
       // console.log("adjusting invisible tile: " + n);
-      if (tiles[n + 1].visible) {
+      if ((tiles[n + 1].visible) && (tiles[n].linenum == tiles[n+1].linenum)) {
         // retract the blackout tile to teh left slightly
         context.fillStyle = 'white';
         context.fillRect(tiles[n].left, tiles[n].top,
@@ -270,12 +273,19 @@ function adjustBlackout( context) {
           tiles[n].bottom - tiles[n].top);
       }
 
+    }// end for loop
+    // adjust blackout on last tile if it's already blacked out
+    // otherwise you get a missing bit on the bottom right corner
+    var lastTileIndex = tiles.length -1;
+    if ((!tiles[lastTileIndex].visible) ){
+      context.fillStyle = 'black';
+      context.fillRect(tiles[lastTileIndex].left -1, tiles[lastTileIndex].top,
+      (tiles[lastTileIndex].right - tiles[lastTileIndex].left + 5.5),
+      tiles[lastTileIndex].bottom - tiles[lastTileIndex].top);
     }
-
   }
-
-
 }
+
 
 // toggle tiles between blacked-out and visible
 function toggleTile(context, n) {

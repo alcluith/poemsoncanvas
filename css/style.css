@@ -32,6 +32,9 @@ width: 100%;
   border-color: black !important;
   font-family: 'Open Sans', sans-serif;
   outline: none;
+  padding: 5px;
+  margin-bottom: 5px;
+  margin-top: 5px;
 
 }
 
