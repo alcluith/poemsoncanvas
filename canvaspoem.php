@@ -257,6 +257,11 @@ function getSelectedText(text_name){
  $( window ).on( "load", function() {
         console.log( "window loaded" );
         $(".gettext").show();
+        $(".fict").hide();
+        $(".nfict").hide();
+        $(".polit").hide();
+        $(".uplo").hide();
+        $(".paste").hide();
         $(".makepoem").hide();
 
         // initalize();
@@ -282,7 +287,7 @@ function onChange(event) {
 
     current_word_index = 0;
 
-    $(".gettext").hide();
+    $(".uplo").hide();
     $(".makepoem").show();
 
     initalize();
@@ -291,6 +296,17 @@ function onChange(event) {
   reader.readAsText(file);
 }
 
+function hideselect(){
+   $(".landing").hide();
+        $(".fict").hide();
+        $(".nfict").hide();
+        $(".polit").hide();
+        $(".uplo").hide();
+        $(".paste").hide();
+        $(".makepoem").show();
+}
+
+
 //display new text from the beginning when selected
   $(document).ready(function(){
       $( "select" ).change(function(event){
@@ -298,12 +314,12 @@ function onChange(event) {
         textSource = event.target.id;
         console.log("select changed, textSource is " + textSource);
         text_name = document.getElementById(textSource).value;
-       
-        getSelectedText(text_name);
         
+        getSelectedText(text_name);
+        setTimeout(hideselect, 500);
+        // hideselect();
          });
   });
-
 
 
 //display next page  in current text when clicked
@@ -335,13 +351,81 @@ function onChange(event) {
           current_page += 1;
           displayVals();
     }
+
+    else if(this.id == 'loadfict'){ //user wants fiction
+      console.log("loading fiction choices")
+          $(".landing").hide();
+        $(".fict").show();
+        $(".nfict").hide();
+        $(".polit").hide();
+        $(".uplo").hide();
+        $(".paste").hide();
+        $(".makepoem").hide();
+    }
+        else if(this.id == 'loadnfict'){ //user wants fiction
+              console.log("loading nfiction choices")
+                  $(".landing").hide();
+                $(".fict").hide();
+                $(".nfict").show();
+                $(".polit").hide();
+                $(".uplo").hide();
+                $(".paste").hide();
+                $(".makepoem").hide();
+            }
+        else if(this.id == 'loadpol'){ //user wants fiction
+              console.log("loading fiction choices")
+                  $(".landing").hide();
+                $(".fict").hide();
+                $(".nfict").hide();
+                $(".polit").show();
+                $(".uplo").hide();
+                $(".paste").hide();
+                $(".makepoem").hide();
+            }
+        else if(this.id == 'loaduplo'){ //user wants fiction
+              console.log("loading upload choices")
+                  $(".landing").hide();
+                $(".fict").hide();
+                $(".nfict").hide();
+                $(".polit").hide();
+                $(".uplo").show();
+                $(".paste").hide();
+                $(".makepoem").hide();
+            }
+            else if(this.id == 'loadpast'){ //user wants fiction
+              console.log("loading pasted choices")
+                  $(".landing").hide();
+                $(".fict").hide();
+                $(".nfict").hide();
+                $(".polit").hide();
+                $(".uplo").hide();
+                $(".paste").show();
+                $(".makepoem").hide();
+            }
+
+            else if(this.id == 'pastebutton'){ //user wants fiction
+              console.log("loading pasted choices")
+              var alltext = document.getElementById('pastedtext').value;
+              console.log(alltext);
+              getWords(alltext);
+              console.log("In button is pastebutton 2nd word: " + allWords[1]);
+
+              current_word_index = 0;
+
+              // $(".uplo").hide();
+              // $(".makepoem").show();
+
+              initalize();
+               displayVals();
+                  $(".landing").hide();
+                $(".fict").hide();
+                $(".nfict").hide();
+                $(".polit").hide();
+                $(".uplo").hide();
+                $(".paste").hide();
+                $(".makepoem").show();
+            }
         else { //home
-            // $('#ddfic').val('instruction');
-            // $('#ddnfic').val('instruction');
-            // $('#ddpol').val('instruction');
-            // $(".gettext").show();
-            
-            // $(".makepoem").hide();
             location.reload();
 
         }
@@ -355,9 +439,41 @@ function onChange(event) {
 
  </head>
  <body>
+  <div class="landing">
+    <div class="header-image">
+
+      <img src="img/poemsheader.jpg" class="img-responsive">
+
+   
+    <br/>
+
+      <p>
+        Make poems from longer texts by choosing which words to show and which to hide. 
+</p>
+      
+        <p>
+          Choose one of the categories below to get a base text:
+
+        </p>
+<br/>
+
+
+        <div class="container-fluid">
+          <div class="row">
+        <button type="button" class="btn btn-primary btn-block" id="loadfict">Fiction</button>
+             <button type="button" class="btn btn-primary btn-block" id="loadnfict">Non-Fiction</button>
+             <button type="button" class="btn btn-primary btn-block" id="loadpol">Politics</button>
+             <button type="button" class="btn btn-primary btn-block" id="loaduplo">Upload File</button>
+             <button type="button" class="btn btn-primary btn-block" id="loadpast">Paste Text</button>
+         </div>
+      </div>
+
+
+</div>
+ </div>
 
 <!-- first "page", get the user's selected text  -->
-<div class="gettext">
+<div class="fict">
   <center>
   <div class="header-image">
     
@@ -365,20 +481,8 @@ function onChange(event) {
     
 </div>
 
-    <div class="row justify-content-center" id="fiction">
-      <div class="col justify-content-center container-fluid">
-        <br/>
-        <p>
-        Make poems from longer texts by choosing which words to show and which to hide. 
-        </p> 
-        <p>Click a word to hide, click again to reveal.  
-        Drag a longer piece of text to hide, drag again to reveal.</p>
-        <p>
-        Choose a text from <em>one</em> of the following:
-        
-        </p>
-        Fiction: 
-      </div>
+    <div class="row justify-content-center " id="fiction">
+      
       <div class="col justify-content-center">
         <select class="selectpicker" id="ddfic" >
         <option value ="instruction" selected > -- Please select --</option>
@@ -391,16 +495,23 @@ function onChange(event) {
           <option value="sherlock">Sherlock Holmes</option>
           
         </select> 
-        <br/>
-        <br/>
       </div>
     </div>
+  </center>
+  </div>
 
-    <div class="row " id="nonfiction">
-      <div class="col">
-       or Non-fiction: 
-      </div>
-      <div class="col">
+  
+<div class="nfict">
+  <center>
+  <div class="header-image">
+    
+    <img src="img/poemsheader.jpg" class="img-responsive">
+    
+</div>
+
+    <div class="row justify-content-center ">
+      
+      <div class="col justify-content-center">
         <select class="selectpicker" id="ddnfic">
           <option value ="instruction" selected > -- Please select --</option>
           <option value="tides">Time and Tide</option>
@@ -414,13 +525,20 @@ function onChange(event) {
         <br/>
       </div>
     </div>
-  
+  </center>
+  </div>
 
-  <div class="row " id="politics">
-    <div class="col">
-     or Politics:
-    </div> 
-    <div class="col">
+  <div class="polit">
+  <center>
+  <div class="header-image">
+    
+    <img src="img/poemsheader.jpg" class="img-responsive">
+    
+</div>
+
+    <div class="row justify-content-center ">
+      
+      <div class="col justify-content-center">
       <select class="selectpicker" id="ddpol">
        <option value ="instruction" selected > -- Please select --</option>
         <option value="cons17">Conservative Manifesto 17</option>
@@ -436,11 +554,21 @@ function onChange(event) {
       <br/>
     </div>
   </div>
+  </center>
+  </div>
 
 
-<div class="row" id="upload">
-  <div class="col">
-    or upload a file:
+<div class="uplo">
+  <center>
+  <div class="header-image">
+    
+    <img src="img/poemsheader.jpg" class="img-responsive">
+    
+</div>
+
+    <div class="row justify-content-center ">
+      
+      <div class="col justify-content-center">
   </div>
   <div class="col justify-content-right">
 
@@ -448,6 +576,45 @@ function onChange(event) {
   </div>
 </div>
 </center>
+</div>
+
+<div class="paste">
+  <center>
+  <div class="header-image">
+    
+    <img src="img/poemsheader.jpg" class="img-responsive">
+    
+</div>
+
+    <div class="row justify-content-center ">
+      
+      <div class="col justify-content-center">
+  </div>
+  <div class="col justify-content-right">
+<textarea id="pastedtext" rows="10" cols="50">
+Type or paste text here (there's no limit on length of text).
+</textarea>
+<div class="row justify-content-center ">
+    <button class ="btn btn-primary btn-responsive btn-sm" id="pastebutton">
+    Submit</button>
+    </div>
+  </div>
+</div>
+</center>
+</div>
+
+
+<!-- <div class="row" id="upload">
+  <div class="col">
+   type or paste some text:
+  </div>
+  <div class="col justify-content-right">
+<textarea rows="4" cols="50">
+</textarea>
+    <input  type="button" id="fileinput" onchange="onChange(event)"/>
+  </div>
+</div> -->
+<!-- </center> -->
 
 </div> <!-- end gettext div -->
 
