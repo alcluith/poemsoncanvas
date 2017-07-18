@@ -26,8 +26,8 @@ margin-right: auto;
 width: 100%;
 }
 
-.btn-primary{
 
+.btn-primary{
   background: black !important;
   border-color: black !important;
   font-family: 'Open Sans', sans-serif;
@@ -38,6 +38,7 @@ width: 100%;
 
 }
 
+
 #uploader{
   text-align: center;
   display: inline;
@@ -45,60 +46,42 @@ width: 100%;
 }
 
 .select-picker{
-
   background-color: black;
   /*color: white;*/
   font-family: 'Open Sans', sans-serif;
 
 }
-#mycanvas {
-            /*position: absolute;*/
-            margin-top: 30px;
-            /*margin-left: 200px;*//*
-            border: 10px inset white;*/
-  /*margin-bottom:50px;
-            background: #cccccc;
-           
-           /* position:absolute;
-            top: 60;
-            left: 200;*/
-         }
-
-#controls{
- /*font-family: 'Open Sans', sans-serif;*/
-
-
- /* background-color: blue;*/
-  text-align: center;
-  /*margin-left: auto;
-  margin-right: auto;*/
-  /*margin-top: 30px;
-  margin-bottom:50px;
-  width: 60%;
-  padding: 20px;*/
-  /*font-size: larger;*/
-  word-wrap: normal;
-  
+#mycanvas 
+{
+   margin-top: 30px;
 }
 
-
+#controls{
+  text-align: center;
+  word-wrap: normal;
+}
 
 .header-image{
   align-self: center;
-}
-#instrs{
-  /*text-align: center;
- background-color: white;
-
- 
+  text-align: center;
+  background-color: white;
   margin-left: auto;
   margin-right: auto;
   margin-top: 0px;
   margin-bottom:50px;
+  width: 70%;
+}
+
+#landing{
+  align-self: center;
+  text-align: center;
+  background-color: white;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0px;
+  margin-bottom:50px;
+
   width: 50%;
-  /*padding: 20px;*/
-  /*font-size: large;
-  word-wrap: normal;*/
   
 }
 
